@@ -1,3 +1,4 @@
+import chunk from '@utils/chunk';
 import fs from 'fs';
 import { EOL } from 'os';
 import path from 'path';
@@ -7,7 +8,7 @@ const file = '3.input.txt';
 
 // Improvements over submitted:
 //
-// - used reduce function
+// - used reduce function (moved to chunk function)
 // - findTriplicate breaks early
 
 const priority = (item: string) =>
@@ -30,21 +31,12 @@ const findTriplicate = (pack1: string, pack2: string, pack3: string) => {
   throw 'No triplicate found';
 };
 
-const groupLines = (lines: string[], size: number) =>
-  lines.reduce((groups, current, index) => {
-    if (index % size === 0) last.push([]);
-
-    groups[last.length - 1].push(current);
-
-    return groups;
-  }, [] as string[][]);
-
 const start = async () => {
   const content = fs.readFileSync(path.join(__dirname, file), 'utf8');
   const lines = content.split(EOL);
   const size = 3;
 
-  const total = groupLines(lines, size)
+  const total = chunk(lines, size)
     .map((group) => priority(findTriplicate(group[0], group[1], group[2])))
     .reduce((x, y) => x + y);
 
