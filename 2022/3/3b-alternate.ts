@@ -1,4 +1,5 @@
 import chunk from '@utils/chunk';
+import toSum from '@utils/toSum';
 import fs from 'fs';
 import { EOL } from 'os';
 import path from 'path';
@@ -38,7 +39,7 @@ const start = async () => {
 
   const total = chunk(lines, size)
     .map((group) => priority(findTriplicate(group[0], group[1], group[2])))
-    .reduce((x, y) => x + y);
+    .reduce(toSum);
 
   console.log(total);
 };
