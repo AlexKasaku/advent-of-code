@@ -7,6 +7,7 @@ describe('range', () => {
     [-3, -1, [-3, -2, -1]],
     [-2, 2, [-2, -1, 0, 1, 2]],
     [8, 12, [8, 9, 10, 11, 12]],
+    [5, 3, [5, 4, 3]],
   ])('works', (start, end, expected) => {
     expect(range(start, end)).toEqual(expected);
   });
