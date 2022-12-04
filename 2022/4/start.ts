@@ -4,24 +4,21 @@ import fs from 'fs';
 import { EOL } from 'os';
 import path from 'path';
 
-//const file = './files/example.txt';
-const file = './files/input.txt';
+const file = './files/example.txt';
+//const file = './files/input.txt';
+
+const parseRange = (rangeString: string) => {
+  const [start, end] = rangeString.split('-').map((x) => parseInt(x));
+  return range(start, end);
+};
 
 const overlap = (line: string) => {
-  const [oneString, twoString] = line.split(',');
-
-  const one = oneString.split('-').map((x) => parseInt(x));
-  const oneRange = range(one[0], one[1]);
-
-  const two = twoString.split('-').map((x) => parseInt(x));
-  const twoRange = range(two[0], two[1]);
-
-  const intersection = intersect(oneRange, twoRange);
+  const [one, two] = line.split(',').map(parseRange);
+  const intersection = intersect(one, two);
 
   return {
     total:
-      intersection.length == oneRange.length ||
-      intersection.length == twoRange.length,
+      intersection.length == one.length || intersection.length == two.length,
     partly: intersection.length > 0,
   };
 };

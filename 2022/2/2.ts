@@ -68,10 +68,7 @@ const getScore = (line: string) => {
   const elf = line[0];
   const you = line[2];
 
-  const score = gameValue(you) + shapeValue(elf, you);
-  //console.log(score);
-
-  return score;
+  return gameValue(you) + shapeValue(elf, you);
 };
 
 const start = async () => {
