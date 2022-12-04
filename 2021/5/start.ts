@@ -1,4 +1,5 @@
 import range from '@utils/range';
+import transpose from '@utils/transpose';
 import fs from 'fs';
 import { EOL } from 'os';
 import path from 'path';
@@ -27,10 +28,23 @@ const orthagonal = ({ start, end }: Line) =>
   start.x === end.x || start.y === end.y;
 
 const interpolate = ({ start, end }: Line): Point[] => {
+  const xRange = range(start.x, end.x);
+  const yRange = range(start.y, end.y);
+
+  if (xRange.length > 1 && yRange.length > 1) {
+    // Diagonal
+    const points = transpose([xRange, yRange]).map((a) => ({
+      x: a[0],
+      y: a[1],
+    }));
+
+    return points;
+  }
+
   const points = [];
 
-  for (const x of range(start.x, end.x))
-    for (const y of range(start.y, end.y)) points.push({ x, y });
+  for (const x of xRange) for (const y of yRange) points.push({ x, y });
+
   return points;
 };
 
@@ -49,7 +63,7 @@ const start = async () => {
   const points = content
     .split(EOL)
     .map(toLines)
-    .filter(orthagonal)
+    //.filter(orthagonal)
     .map(interpolate)
     .flat();
 
