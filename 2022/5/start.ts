@@ -28,14 +28,15 @@ const parseState = (lines: string[]) => {
 const parseMoves = (lines: string[]): Move[] => {
   const moves: Move[] = [];
   for (const line of lines) {
-    const [[_, value, from, to]] = [
-      ...line.matchAll(/move (\d+) from (\d+) to (\d+)/g),
-    ];
-    moves.push({
-      value: parseInt(value),
-      from: parseInt(from),
-      to: parseInt(to),
-    });
+    const match = /?<value>\d+) from (?<from>\d+) to (?<to>\d+)/g.exec(line);
+    if (match?.groups) {
+      const { value, from, to } = match.groups;
+      moves.push({
+        value: parseInt(value),
+        from: parseInt(from),
+        to: parseInt(to),
+      });
+    }
   }
   return moves;
 };
