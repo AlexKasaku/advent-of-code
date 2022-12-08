@@ -1,6 +1,6 @@
+import { byDescending } from '@utils/sort';
 import transpose from '@utils/transpose';
 import fs from 'fs';
-import { findLastIndex } from 'lodash';
 import { EOL } from 'os';
 import path from 'path';
 
@@ -78,7 +78,7 @@ const start = async () => {
   // Part 2
   const highestScore = trees
     .flatMap((row) => row.filter((t) => t.visible).map((t) => t.score))
-    .sort((a, b) => b - a)[0];
+    .sort(byDescending)[0];
 
   console.log(highestScore);
 };
