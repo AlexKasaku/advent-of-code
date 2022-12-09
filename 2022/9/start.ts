@@ -2,7 +2,7 @@ import fs from 'fs';
 import { EOL } from 'os';
 import path from 'path';
 
-//const file = './files/example.txt';
+//const file = './files/example2.txt';
 const file = './files/input.txt';
 
 const debugMode = false;
@@ -44,7 +44,7 @@ const updateHead = (head: Point, direction: Direction): void => {
   }
 };
 
-const updateTail = (tail: Point, head: Point): void => {
+const updateToFollow = (tail: Point, head: Point): void => {
   // Tail moves towards Head if it is at least 2 spaces away in a direction
   const deltaY = head.y - tail.y;
   const deltaX = head.x - tail.x;
@@ -54,17 +54,17 @@ const updateTail = (tail: Point, head: Point): void => {
     (Math.abs(deltaY) == 1 || Math.abs(deltaX) == 1)
   ) {
     // Diagonal move, tail must move 1 in each axis towards head.
-    debug('Tail: Diagonal move');
+    debug('Diagonal move');
     tail.x += deltaX / Math.abs(deltaX);
     tail.y += deltaY / Math.abs(deltaY);
   } else if (Math.abs(deltaY) == 2 || Math.abs(deltaX) == 2) {
     // Straight move. It can only be in one direction so we can safely update both.
-    debug('Tail: Straight move');
+    debug('Straight move');
     tail.x += deltaX / 2;
     tail.y += deltaY / 2;
   } else {
     // Otherwise, head has not moved far away enough yet.
-    debug('Tail: No move');
+    debug('No move');
   }
 };
 
@@ -72,35 +72,38 @@ const start = async () => {
   const content = fs.readFileSync(path.join(__dirname, file), 'utf8');
 
   const moves = parseInput(content);
-  //const moves = parseInput(content).slice(0, 1);
 
-  const head = { x: 0, y: 0 };
-  const tail = { x: 0, y: 0 };
+  // Part 1 = 2, Part 2 = 10
+  const ropeSize = 2;
+  const rope = [...Array(ropeSize)].map(() => ({ x: 0, y: 0 }));
 
-  const visitedPoints = new Set([pointToString(tail)]);
+  const visitedPoints = new Set([pointToString(rope[rope.length - 1])]);
 
   debug(
-    `Start: Head: ${pointToString(head)}. Tail: ${pointToString(
-      tail
+    `Start: Head: ${pointToString(rope[0])}. Tail: ${pointToString(
+      rope[rope.length - 1]
     )}. Visited: ${visitedPoints.size}`
   );
 
   moves.forEach(({ direction, times }) => {
     [...Array(times)].forEach((x) => {
       // Update head
-      updateHead(head, direction);
+      updateHead(rope[0], direction);
 
-      // Update tail
-      updateTail(tail, head);
+      // Update remaining positions
+      for (let pos = 1; pos < rope.length; pos++)
+        updateToFollow(rope[pos], rope[pos - 1]);
 
       // Record tail position
-      visitedPoints.add(pointToString(tail));
+      visitedPoints.add(pointToString(rope[rope.length - 1]));
 
       // Debug log
       debug(
         `Head moved: ${direction}. Head: ${pointToString(
-          head
-        )}. Tail: ${pointToString(tail)}. Visited: ${visitedPoints.size}`
+          rope[0]
+        )}. Tail: ${pointToString(rope[rope.length - 1])}. Visited: ${
+          visitedPoints.size
+        }`
       );
     });
   });
