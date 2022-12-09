@@ -2,13 +2,13 @@ import fs from 'fs';
 import { EOL } from 'os';
 import path from 'path';
 
-//const file = './files/example2.txt';
+//const file = './files/example.txt';
 const file = './files/input.txt';
 
 const debugMode = false;
 const debug = (...params: any[]) => {
   if (debugMode) {
-    console.log(params);
+    console.log(...params);
   }
 };
 
@@ -45,25 +45,19 @@ const updateHead = (head: Point, direction: Direction): void => {
 };
 
 const updateToFollow = (tail: Point, head: Point): void => {
-  // Tail moves towards Head if it is at least 2 spaces away in a direction
   const deltaY = head.y - tail.y;
   const deltaX = head.x - tail.x;
 
-  if (
-    (Math.abs(deltaY) == 2 || Math.abs(deltaX) == 2) &&
-    (Math.abs(deltaY) == 1 || Math.abs(deltaX) == 1)
-  ) {
-    // Diagonal move, tail must move 1 in each axis towards head.
-    debug('Diagonal move');
-    tail.x += deltaX / Math.abs(deltaX);
-    tail.y += deltaY / Math.abs(deltaY);
-  } else if (Math.abs(deltaY) == 2 || Math.abs(deltaX) == 2) {
-    // Straight move. It can only be in one direction so we can safely update both.
-    debug('Straight move');
-    tail.x += deltaX / 2;
-    tail.y += deltaY / 2;
+  // Tail moves towards Head if it is at least 2 spaces away in a direction
+  // We can multiply deltaX * deltaY and if that's at least 2 then it's moved
+  // enough. We count a 0 as 1 so straight moves count.
+  if (Math.abs((deltaX || 1) * (deltaY || 1)) >= 2) {
+    // The head has moved enough for us to move. Move 1 towards it
+    // in each direction if it has moved that way.
+    tail.x += deltaX ? Math.sign(deltaX) : 0;
+    tail.y += deltaY ? Math.sign(deltaY) : 0;
   } else {
-    // Otherwise, head has not moved far away enough yet.
+    // Head has not moved far away enough yet.
     debug('No move');
   }
 };
@@ -74,7 +68,7 @@ const start = async () => {
   const moves = parseInput(content);
 
   // Part 1 = 2, Part 2 = 10
-  const ropeSize = 2;
+  const ropeSize = 10;
   const rope = [...Array(ropeSize)].map(() => ({ x: 0, y: 0 }));
 
   const visitedPoints = new Set([pointToString(rope[rope.length - 1])]);
