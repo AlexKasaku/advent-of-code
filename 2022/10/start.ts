@@ -25,12 +25,15 @@ const parseOperation = (line: string): Operation => {
   throw 'Unsupported operator: ' + line;
 };
 
+const getChar = (cycle: number, x: number) => {
+  return Math.abs(x - cycle) <= 1 ? '🎅' : '⚫';
+};
+
 const start = async () => {
   const content = fs.readFileSync(path.join(__dirname, file), 'utf8');
 
   let cycle = 1;
   let x = 1;
-  let total = 0;
 
   const operations = content.split(EOL).map((x) => parseOperation(x));
 
@@ -39,14 +42,17 @@ const start = async () => {
 
   while (true) {
     // // Now output x as value of *this* cycle
-    if ((cycle - 20) % 40 === 0) {
-      total += cycle * x;
-      console.log(`[${cycle}] x = ${x}, total = ${total}`);
+    if ((cycle - 1) % 40 === 0) {
+      process.stdout.write(EOL);
     }
-    //console.log(`[${cycle}] x = ${x}`);
+
+    const char = getChar((cycle - 1) % 40, x);
+    process.stdout.write(char);
 
     if (delayedOp) {
       delayedTimer--;
+
+      // Now the right cycle to execute the operator
       if (delayedTimer === 0) {
         switch (delayedOp.operator) {
           case 'addx':
@@ -55,6 +61,7 @@ const start = async () => {
         delayedOp = undefined;
       }
     } else {
+      // No current operation, read the next one
       const nextOp = operations.shift();
       if (!nextOp) break;
 
@@ -67,7 +74,6 @@ const start = async () => {
 
     cycle++;
   }
-  console.log(total);
 };
 
 start();
