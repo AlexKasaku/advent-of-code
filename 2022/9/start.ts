@@ -1,6 +1,7 @@
 import fs from 'fs';
 import { EOL } from 'os';
 import path from 'path';
+import { stringify } from 'querystring';
 
 //const file = './files/example.txt';
 const file = './files/input.txt';
@@ -67,6 +68,8 @@ const start = async () => {
 
   const moves = parseInput(content);
 
+  const positionsOutput: Point[][] = [];
+
   // Part 1 = 2, Part 2 = 10
   const ropeSize = 10;
   const rope = [...Array(ropeSize)].map(() => ({ x: 0, y: 0 }));
@@ -99,10 +102,16 @@ const start = async () => {
           visitedPoints.size
         }`
       );
+
+      positionsOutput.push(JSON.parse(JSON.stringify(rope)));
     });
   });
 
-  console.log(visitedPoints.size);
+  fs.writeFileSync(
+    path.join(__dirname, 'output.json'),
+    JSON.stringify(positionsOutput),
+    'utf8'
+  );
 };
 
 start();
