@@ -4,6 +4,7 @@
   "main": "index.js",
   "license": "MIT",
   "scripts": {
+    "template": "powershell -command \"& .\\Create-Day.ps1\"",
     "start": "ts-node -r tsconfig-paths/register",
     "test": "jest --onlyChanged ./utils"
   },
