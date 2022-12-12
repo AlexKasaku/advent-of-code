@@ -15,8 +15,23 @@ type Position = {
   end: boolean;
   visited: boolean;
   distance: number;
+  manhattanDistanceToEnd: number;
 };
 type Grid = Position[][];
+
+const parseInput = (input: string) =>
+  input.split(EOL).map((line, y) =>
+    line.split('').map((c, x) => ({
+      x,
+      y,
+      height: getHeight(c),
+      start: c === 'S' ? true : false,
+      end: c === 'E' ? true : false,
+      visited: false,
+      distance: Number.MAX_SAFE_INTEGER,
+      manhattanDistanceToEnd: 0,
+    }))
+  );
 
 const updatePosition = (position: Position, distance: number): void => {
   if (position.visited) return;
@@ -71,18 +86,12 @@ const getHeight = (item: string) => {
   return 'abcdefghijklmnopqrstuvwxyz'.split('').indexOf(item) + 1;
 };
 
-const parseInput = (input: string) =>
-  input.split(EOL).map((line, y) =>
-    line.split('').map((c, x) => ({
-      x,
-      y,
-      height: getHeight(c),
-      start: c === 'S' ? true : false,
-      end: c === 'E' ? true : false,
-      visited: false,
-      distance: Number.MAX_SAFE_INTEGER,
-    }))
-  );
+const setManhattanDistances = (grid: Grid, { x, y }: Position) => {
+  grid.flat().forEach((g) => {
+    g.manhattanDistanceToEnd = Math.abs(g.x - x) + Math.abs(g.y - y);
+  });
+};
+
 const start = async () => {
   const content = fs.readFileSync(path.join(__dirname, file), 'utf8');
 
@@ -99,6 +108,9 @@ const start = async () => {
   // Part 2. From end to first with height A
   if (!part1) end.distance = 0;
 
+  // Set Manhattan Distances, which we'll use to prioritise what spaces to look at next
+  setManhattanDistances(grid, end);
+
   let iterations = 0;
   while (true) {
     iterations++;
@@ -107,12 +119,20 @@ const start = async () => {
     const candidate = grid
       .flat()
       .filter((x) => !x.visited)
-      .sort((a, b) => a.distance - b.distance)
+      .sort(
+        (a, b) =>
+          a.distance +
+          a.manhattanDistanceToEnd -
+          (b.distance + b.manhattanDistanceToEnd)
+      )
       .shift();
 
     // No grid spaces left to check if there isn't one remaining or "closest" is still at Infinity (unreachable). Need
     // to check this also to account for blocked off areas.
-    if (!candidate || candidate.distance === Infinity) break;
+    if (!candidate || candidate.distance === Infinity) {
+      console.log(`Breaking early on candidate ${candidate}`);
+      break;
+    }
 
     // Update neighbours
     updateNeighbours(grid, candidate);
