@@ -5,6 +5,8 @@ import path from 'path';
 //const file = './files/example.txt';
 const file = './files/input.txt';
 
+const part1 = true;
+
 type Position = {
   x: number;
   y: number;
@@ -22,6 +24,11 @@ const updatePosition = (position: Position, distance: number): void => {
   if (distance < position.distance) position.distance = distance;
 };
 
+const isReachable = (currentHeight: number, candidateHeight: number): boolean =>
+  part1
+    ? currentHeight >= candidateHeight - 1
+    : currentHeight - 1 <= candidateHeight;
+
 const updateNeighbours = (
   grid: Grid,
   { x, y, distance, height }: Position
@@ -30,22 +37,26 @@ const updateNeighbours = (
   if (x > 0) {
     const candidate = grid[y][x - 1]!;
 
-    if (height - 1 <= candidate.height) updatePosition(candidate, distance + 1);
+    if (isReachable(height, candidate.height))
+      updatePosition(candidate, distance + 1);
   }
   if (x < grid[y].length - 1) {
     const candidate = grid[y][x + 1]!;
 
-    if (height - 1 <= candidate.height) updatePosition(candidate, distance + 1);
+    if (isReachable(height, candidate.height))
+      updatePosition(candidate, distance + 1);
   }
   if (y > 0) {
     const candidate = grid[y - 1][x]!;
 
-    if (height - 1 <= candidate.height) updatePosition(candidate, distance + 1);
+    if (isReachable(height, candidate.height))
+      updatePosition(candidate, distance + 1);
   }
   if (y < grid.length - 1) {
     const candidate = grid[y + 1][x]!;
 
-    if (height - 1 <= candidate.height) updatePosition(candidate, distance + 1);
+    if (isReachable(height, candidate.height))
+      updatePosition(candidate, distance + 1);
   }
 };
 
@@ -69,7 +80,7 @@ const parseInput = (input: string) =>
       start: c === 'S' ? true : false,
       end: c === 'E' ? true : false,
       visited: false,
-      distance: c === 'E' ? 0 : Number.MAX_SAFE_INTEGER,
+      distance: Number.MAX_SAFE_INTEGER,
     }))
   );
 const start = async () => {
@@ -82,7 +93,16 @@ const start = async () => {
   if (!start) throw 'No start position!';
   if (!end) throw 'No end position!';
 
+  // Part 1. From start to end:
+  if (part1) start.distance = 0;
+
+  // Part 2. From end to first with height A
+  if (!part1) end.distance = 0;
+
+  let iterations = 0;
   while (true) {
+    iterations++;
+
     // Get next unvisited. This could be faster with sets...
     const candidate = grid
       .flat()
@@ -90,7 +110,8 @@ const start = async () => {
       .sort((a, b) => a.distance - b.distance)
       .shift();
 
-    // No grid spaces left to check
+    // No grid spaces left to check if there isn't one remaining or "closest" is still at Infinity (unreachable). Need
+    // to check this also to account for blocked off areas.
     if (!candidate || candidate.distance === Infinity) break;
 
     // Update neighbours
@@ -99,20 +120,14 @@ const start = async () => {
     // Mark candidate as visited
     candidate.visited = true;
 
-    // console.log(
-    //   `Visited ${candidate.x},${candidate.y}. Distance to E is ${candidate.distance}`
-    // );
-
-    // console.log(
-    //   `Total visited: ${grid.flat().filter((x) => x.visited).length}`
-    // );
-
-    if (candidate.height == 1) {
-      // Yay! We've reached the end
+    if ((part1 && candidate.end) || (!part1 && candidate.height == 1)) {
+      // Yay! We're done
       console.log(candidate);
       break;
     }
   }
+
+  console.log(`Found in ${iterations} iterations.`);
 };
 
 start();
