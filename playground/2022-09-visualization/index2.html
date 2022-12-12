@@ -1,0 +1,83 @@
+<!doctype html>
+<html>
+
+<head>
+    <style>
+        #my-canvas {
+            border: 1px solid gray;
+        }
+    </style>
+    <script type="text/javascript" src="data.js"></script>
+</head>
+
+<body>
+    <canvas id="my-canvas" width="500" height="500"></canvas>
+    <script>
+        var canvas = document.querySelector('#my-canvas');
+        var context = canvas.getContext('2d');
+
+        var startTime;
+        var duration = 10 * 3000;
+
+        var image = context.createImageData(1, 1);
+        var data = image.data;
+
+        function drawPixel(x, y, color) {
+            data[0] = color.r;
+            data[1] = color.g;
+            data[2] = color.b;
+            data[3] = color.a;
+
+            context.putImageData(image, x, y);
+        }
+
+        function plotKnot(knot, progress) {
+            var x = knot.x + 200;
+            var y = knot.y + 200;
+            var color = {
+                r: 255,
+                g: 0,
+                b: 0,
+                a: 40 + (215 * progress)
+            };
+
+            drawPixel(x, y, color);
+        }
+
+        function animationStep(timestamp) {
+
+            var timestamp = timestamp || new Date().getTime();
+            var runtime = timestamp - startTime;
+            var progress = runtime / duration;
+
+            console.log('runtime: ' + runtime);
+            console.log('progress: ' + progress);
+
+            var currentRopeIndex = Math.floor(ropeData.length * progress);
+            console.log('currentRopeIndex: ' + currentRopeIndex);
+
+            if (currentRopeIndex >= 0 && currentRopeIndex < ropeData.length) {
+                var currentRope = ropeData[currentRopeIndex];
+
+                console.log(currentRopeIndex);
+                console.log(currentRope);
+
+                //context.clearRect(0, 0, canvas.width, canvas.height);
+
+                for (const knot of currentRope)
+                    plotKnot(knot, progress);
+            }
+
+            if (runtime < duration) {
+                requestAnimationFrame(animationStep);
+            }
+        }
+
+        requestAnimationFrame((timestamp) => {
+            startTime = timestamp || new Date().getTime();
+            animationStep(startTime);
+        });
+    </script>
+</body>
+
+</html>
