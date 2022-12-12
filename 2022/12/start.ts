@@ -30,22 +30,22 @@ const updateNeighbours = (
   if (x > 0) {
     const candidate = grid[y][x - 1]!;
 
-    if (candidate.height <= height + 1) updatePosition(candidate, distance + 1);
+    if (height - 1 <= candidate.height) updatePosition(candidate, distance + 1);
   }
   if (x < grid[y].length - 1) {
     const candidate = grid[y][x + 1]!;
 
-    if (candidate.height <= height + 1) updatePosition(candidate, distance + 1);
+    if (height - 1 <= candidate.height) updatePosition(candidate, distance + 1);
   }
   if (y > 0) {
     const candidate = grid[y - 1][x]!;
 
-    if (candidate.height <= height + 1) updatePosition(candidate, distance + 1);
+    if (height - 1 <= candidate.height) updatePosition(candidate, distance + 1);
   }
   if (y < grid.length - 1) {
     const candidate = grid[y + 1][x]!;
 
-    if (candidate.height <= height + 1) updatePosition(candidate, distance + 1);
+    if (height - 1 <= candidate.height) updatePosition(candidate, distance + 1);
   }
 };
 
@@ -69,7 +69,7 @@ const parseInput = (input: string) =>
       start: c === 'S' ? true : false,
       end: c === 'E' ? true : false,
       visited: false,
-      distance: c === 'S' ? 0 : Number.MAX_SAFE_INTEGER,
+      distance: c === 'E' ? 0 : Number.MAX_SAFE_INTEGER,
     }))
   );
 const start = async () => {
@@ -91,23 +91,28 @@ const start = async () => {
       .shift();
 
     // No grid spaces left to check
-    if (!candidate) break;
+    if (!candidate || candidate.distance === Infinity) break;
 
     // Update neighbours
     updateNeighbours(grid, candidate);
 
     // Mark candidate as visited
     candidate.visited = true;
-    //console.log(`Visited ${candidate.x},${candidate.y}`);
 
-    if (candidate.end) {
+    // console.log(
+    //   `Visited ${candidate.x},${candidate.y}. Distance to E is ${candidate.distance}`
+    // );
+
+    // console.log(
+    //   `Total visited: ${grid.flat().filter((x) => x.visited).length}`
+    // );
+
+    if (candidate.height == 1) {
       // Yay! We've reached the end
+      console.log(candidate);
       break;
     }
   }
-
-  // Part 1
-  console.log(end.distance);
 };
 
 start();
