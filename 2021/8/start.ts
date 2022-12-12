@@ -2,6 +2,9 @@ import difference from '@utils/difference';
 import findAndRemove from '@utils/findAndRemove';
 import intersect from '@utils/intersect';
 import setsAreEqual from '@utils/setsAreEqual';
+import stringDifference from '@utils/stringDifference';
+import stringIntersect from '@utils/stringIntersect';
+import stringsAreEqualSets from '@utils/stringSetsAreEqual';
 import toSum from '@utils/toSum';
 import fs from 'fs';
 import { EOL } from 'os';
@@ -46,80 +49,63 @@ const parseInput = (content: string): Display[] =>
 
 const getDisplayValue = (display: Display): number => {
   // Deducate all the digits first
-  const digit1 = findAndRemove(display.inputs, (x) => x.length == 2)[0];
-  const digit4 = findAndRemove(display.inputs, (x) => x.length == 4)[0];
-  const digit7 = findAndRemove(display.inputs, (x) => x.length == 3)[0];
-  const digit8 = findAndRemove(display.inputs, (x) => x.length == 7)[0];
+  const digits: string[] = new Array(10);
+
+  digits[1] = findAndRemove(display.inputs, (x) => x.length == 2)[0];
+  digits[4] = findAndRemove(display.inputs, (x) => x.length == 4)[0];
+  digits[7] = findAndRemove(display.inputs, (x) => x.length == 3)[0];
+  digits[8] = findAndRemove(display.inputs, (x) => x.length == 7)[0];
 
   // 3 - length 5, contains 1's segments - 3 | 1 = 3
-  const digit3 = findAndRemove(
+  digits[3] = findAndRemove(
     display.inputs,
-    (x) =>
-      x.length == 5 &&
-      setsAreEqual(new Set([...x.split(''), ...digit1.split('')]), new Set(x))
+    (x) => x.length == 5 && stringsAreEqualSets(x + digits[1], x)
   )[0];
 
   // 5 - Length 5 - 5 | (4 not in 1) = 5
-  const digit5 = findAndRemove(
+  digits[5] = findAndRemove(
     display.inputs,
     (x) =>
       x.length == 5 &&
-      setsAreEqual(
-        new Set([
-          ...difference(digit4.split(''), digit1.split('')),
-          ...x.split(''),
-        ]),
-        new Set(x)
-      )
+      stringsAreEqualSets(stringDifference(digits[4], digits[1]) + x, x)
   )[0];
 
   // 2 - Length 5, remaining after 5 & 3 identified
-  const digit2 = findAndRemove(display.inputs, (x) => x.length == 5)[0];
+  digits[2] = findAndRemove(display.inputs, (x) => x.length == 5)[0];
 
   // 6 - Length 6, does not contain all of 1's segments - 6 | 1 != 9
-  const digit6 = findAndRemove(
+  digits[6] = findAndRemove(
     display.inputs,
     (x) =>
-      x.length == 6 &&
-      intersect(digit1.split(''), x.split('')).length < digit1.length
+      x.length == 6 && stringIntersect(digits[1], x).length < digits[1].length
   )[0];
 
   // 9 - length 6, contains 4's segments - 9 | 4 = 9
-  const digit9 = findAndRemove(
+  digits[9] = findAndRemove(
     display.inputs,
-    (x) =>
-      x.length == 6 &&
-      setsAreEqual(new Set([...x.split(''), ...digit4.split('')]), new Set(x))
+    (x) => x.length == 6 && stringsAreEqualSets(x + digits[4], x)
   )[0];
 
   // 0 - last digit remaining
-  const digit0 = display.inputs.shift();
-
-  // Nicer ways to do this, but let's just push into an array for comparison and
-  // use the index as the digit
-  const digits: Set<string>[] = [];
-
-  digits.push(new Set(digit0));
-  digits.push(new Set(digit1));
-  digits.push(new Set(digit2));
-  digits.push(new Set(digit3));
-  digits.push(new Set(digit4));
-  digits.push(new Set(digit5));
-  digits.push(new Set(digit6));
-  digits.push(new Set(digit7));
-  digits.push(new Set(digit8));
-  digits.push(new Set(digit9));
+  if (display.inputs.length != 1)
+    throw (
+      'Unexpected length of display.inputs remaining: ' + display.inputs.length
+    );
+  digits[0] = display.inputs[0];
 
   // Now work out the display
-  let displayValue: string = '';
+  // let displayValue: string = '';
 
-  display.digits.forEach((d) => {
-    displayValue += digits.findIndex((digit) =>
-      setsAreEqual(digit, new Set(d))
-    );
-  });
+  // display.digits.forEach((d) => {
+  //   displayValue += digits.findIndex((digit) => stringsAreEqualSets(digit, d));
+  // });
 
-  return parseInt(displayValue);
+  return parseInt(
+    display.digits.reduce(
+      (a, b) => a + digits.findIndex((digit) => stringsAreEqualSets(digit, b)),
+      ''
+    )
+  );
 };
 
 const start = async () => {
