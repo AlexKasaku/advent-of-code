@@ -54,6 +54,11 @@ export class Grid<T> {
     }
   };
 
+  get = ({ x, y }: Position): T | undefined => this.Values[y]?.[x];
+  set = ({ x, y }: Position, value: T): void => {
+    this.Values[y][x] = value;
+  };
+
   log = () => {
     console.dir(this.Values, { depth: null });
   };

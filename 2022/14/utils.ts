@@ -46,7 +46,7 @@ export const createGridFromPoints = (points: Point[]): Grid<Space> => {
   const minY = points.map((p) => p.y).sort(byAscending)[0];
   const maxY = points.map((p) => p.y).sort(byDescending)[0];
 
-  //console.log(`${minX},${minY} -> ${maxX},${maxY}`);
+  console.log(`${minX},${minY} -> ${maxX},${maxY}`);
 
   const grid = new Grid<Space>(maxX + 1, maxY + 1, ({ x, y }) => {
     const isRock = points.find((p) => p.x == x && p.y == y);
@@ -68,12 +68,55 @@ export const getChar = (content: ContentType): string => {
   return '⚫';
 };
 
-export const renderGrid = (grid: Grid<Space>): void => {
-  const maxY = 9;
-  const minX = 494;
-  const maxX = 503;
+export const getNextPointForSand = (
+  grid: Grid<Space>,
+  point: Point
+): Point | 'off' | 'rest' => {
+  // Determine the next point for the sand
 
-  for (let y = 0; y <= maxY; y++) {
+  // Look below
+  const below = checkPoint(grid, { x: point.x, y: point.y + 1 });
+  if (below != 'blocked') return below;
+
+  // Look lower-left
+  const lowerLeft = checkPoint(grid, { x: point.x - 1, y: point.y + 1 });
+  if (lowerLeft != 'blocked') return lowerLeft;
+
+  // Look lower-right
+  const lowerRight = checkPoint(grid, { x: point.x + 1, y: point.y + 1 });
+  if (lowerRight != 'blocked') return lowerRight;
+
+  // Exhaused options, rest
+  return 'rest';
+};
+
+const checkPoint = (
+  grid: Grid<Space>,
+  point: Point
+): 'blocked' | 'off' | Point => {
+  const space = grid.get(point);
+
+  // If nothing, is off grid
+  if (!space) return 'off';
+
+  // If no content, can move there
+  if (!space.content) return space;
+
+  return 'blocked';
+};
+
+export const renderGrid = (grid: Grid<Space>): void => {
+  // Part 1
+  //   const maxY = 9;
+  //   const minX = 494;
+  //   const maxX = 503;
+
+  const minY = 10;
+  const maxY = 80;
+  const minX = 472;
+  const maxX = 573;
+
+  for (let y = minY; y <= maxY; y++) {
     for (let x = minX; x <= maxX; x++)
       process.stdout.write(getChar(grid.Values[y][x].content));
 
