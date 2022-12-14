@@ -14,13 +14,10 @@ const file = './files/input.txt';
 
 const start = async () => {
   const content = fs.readFileSync(path.join(__dirname, file), 'utf8');
-
   const points = parsePoints(content);
 
-  //console.log(points);
   const grid = createGridFromPoints(points, true);
 
-  //const sandSpawn: Point[] = [{ x: 500, y: 0 }];
   type Sand = Point & { spawnedFrom: Point };
   const sandsInMotion: Sand[] = [
     { x: 500, y: 0, spawnedFrom: { x: 500, y: 0 } },
@@ -32,7 +29,12 @@ const start = async () => {
   const maxCycles = 9000000;
 
   let sandAtRest = 0;
+
+  var startTime = performance.now();
+
   for (; cycle < maxCycles; cycle++) {
+    //renderGrid(grid);
+
     // For each sand in motion
     for (const sandInMotion of sandsInMotion) {
       const nextPoint = getNextPointForSand(grid, sandInMotion);
@@ -40,9 +42,12 @@ const start = async () => {
       switch (nextPoint) {
         case 'off':
           // Finished!
-          renderGrid(grid);
+          //renderGrid(grid);
           console.log(
             `Sand off grid! Total sand at rest: ${sandAtRest} (took ${cycle} cycles)`
+          );
+          console.log(
+            `Execution took ${performance.now() - startTime} milliseconds`
           );
           return;
 
@@ -56,10 +61,14 @@ const start = async () => {
             sandInMotion.x === sandInMotion.spawnedFrom.x &&
             sandInMotion.y === sandInMotion.spawnedFrom.y
           ) {
-            renderGrid(grid);
+            //renderGrid(grid);
             console.log(
               `Sand reached spawn point! Total sand at rest: ${sandAtRest} (took ${cycle} cycles)`
             );
+            console.log(
+              `Execution took ${performance.now() - startTime} milliseconds`
+            );
+
             return;
           }
 
@@ -87,8 +96,6 @@ const start = async () => {
   }
 
   if ((cycle = maxCycles)) console.log('Ran out of cycles');
-
-  renderGrid(grid);
 };
 
 start();

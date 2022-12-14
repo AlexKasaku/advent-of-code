@@ -49,19 +49,19 @@ export const createGridFromPoints = (
   const minY = points.map((p) => p.y).sort(byAscending)[0];
   const maxY = points.map((p) => p.y).sort(byDescending)[0];
 
-  console.log(`${minX},${minY} -> ${maxX},${maxY}`);
+  console.log(`Boundaries: ${minX},${minY} -> ${maxX},${maxY}`);
 
   const floorYBuffer = addFloor ? 2 : 0;
   const floorXBuffer = addFloor ? 300 : 0;
   const grid = new Grid<Space>(
     maxX + 1 + floorXBuffer,
     maxY + 1 + floorYBuffer,
-    ({ x, y }) => {
-      const isRock = points.find((p) => p.x == x && p.y == y);
-
-      return { x, y, content: isRock ? 'rock' : null };
-    }
+    ({ x, y }) => ({ x, y, content: null })
   );
+
+  for (const point of points) {
+    grid.get(point)!.content = 'rock';
+  }
 
   if (addFloor) {
     for (const point of grid.Values[maxY + floorYBuffer])
@@ -121,17 +121,18 @@ const checkPoint = (
 
 export const renderGrid = (grid: Grid<Space>): void => {
   // Example
-  //   const minY = 0;
-  //   const maxY = 11; // 9 for Part 1
-  //   const minX = 474;
-  //   const maxX = 523;
+  const minY = 0;
+  const maxY = 11; // 9 for Part 1
+  const minX = 488;
+  const maxX = 513;
 
   // Input
-  const minY = 10;
-  const maxY = 174;
-  const minX = 472;
-  const maxX = 573;
+  //   const minY = 10;
+  //   const maxY = 174;
+  //   const minX = 472;
+  //   const maxX = 573;
 
+  process.stdout.write('\x1Bc');
   for (let y = minY; y <= maxY; y++) {
     for (let x = minX; x <= maxX; x++)
       process.stdout.write(getChar(grid.Values[y][x].content));
