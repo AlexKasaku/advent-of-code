@@ -1,10 +1,8 @@
-import { Grid } from './grid';
+import { Direction, Grid } from './grid';
 
 describe('grid', () => {
   describe('getNeighbours', () => {
     const grid = new Grid(3, 3, ({ x, y }) => y * 3 + x + 1);
-
-    console.log(grid);
 
     it.each([
       [{ x: 0, y: 0 }, [2, 4, 5]],
@@ -37,5 +35,18 @@ describe('grid', () => {
       expect(grid.getNeighbours(position).sort()).toEqual(expected);
       expect(grid.getNeighbours(position, true).sort()).toEqual(expected);
     });
+  });
+
+  describe('getAllInDirection', () => {
+    const grid = new Grid(3, 3, ({ x, y }) => y * 3 + x + 1);
+
+    it.each([[{ x: 0, y: 0 }, 'up', true, [1]]])(
+      'returns correct positions',
+      (position, direction, inclusive, expected) => {
+        expect(
+          grid.getAllInDirection(position, direction as Direction, inclusive)
+        ).toEqual(expected);
+      }
+    );
   });
 });

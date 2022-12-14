@@ -1,7 +1,11 @@
-type Position = {
+import { range } from 'lodash';
+
+export type Position = {
   x: number;
   y: number;
 };
+
+export type Direction = 'up' | 'down' | 'left' | 'right';
 
 export class Grid<T> {
   Values: T[][];
@@ -38,6 +42,17 @@ export class Grid<T> {
       ? [this.Values[y + 1][x + 1]]
       : []), // Bottom-right
   ];
+
+  getAllInDirection = (
+    { x, y }: Position,
+    direction: Direction,
+    inclusive: boolean
+  ) => {
+    switch (direction) {
+      case 'up':
+        range(0, y).map((x1) => this.Values[y][x1]);
+    }
+  };
 
   log = () => {
     console.dir(this.Values, { depth: null });
