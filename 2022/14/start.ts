@@ -18,7 +18,7 @@ const start = async () => {
   const points = parsePoints(content);
 
   //console.log(points);
-  const grid = createGridFromPoints(points);
+  const grid = createGridFromPoints(points, true);
 
   //const sandSpawn: Point[] = [{ x: 500, y: 0 }];
   type Sand = Point & { spawnedFrom: Point };
@@ -29,7 +29,7 @@ const start = async () => {
   // Using cycles for infinite-loop protection, if this runs out before puzzle is done
   // then likely there's a problem.
   let cycle = 0;
-  const maxCycles = 200000;
+  const maxCycles = 9000000;
 
   let sandAtRest = 0;
   for (; cycle < maxCycles; cycle++) {
@@ -50,6 +50,18 @@ const start = async () => {
           // Store this sand in the grid
           sandAtRest++;
           grid.set(sandInMotion, { ...sandInMotion, content: 'sand' });
+
+          // Part 2: Is this point the sand spawn? If so then done!
+          if (
+            sandInMotion.x === sandInMotion.spawnedFrom.x &&
+            sandInMotion.y === sandInMotion.spawnedFrom.y
+          ) {
+            renderGrid(grid);
+            console.log(
+              `Sand reached spawn point! Total sand at rest: ${sandAtRest} (took ${cycle} cycles)`
+            );
+            return;
+          }
 
           // Remove this sand in motion
           findAndRemove(

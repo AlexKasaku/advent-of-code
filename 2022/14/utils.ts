@@ -38,7 +38,10 @@ export const parsePoints = (content: string) =>
     .map(interpolate)
     .flat();
 
-export const createGridFromPoints = (points: Point[]): Grid<Space> => {
+export const createGridFromPoints = (
+  points: Point[],
+  addFloor: boolean = false
+): Grid<Space> => {
   // Get size of grid
   // Do we need to ensure grid is as small as possible?
   const minX = points.map((p) => p.x).sort(byAscending)[0];
@@ -48,11 +51,22 @@ export const createGridFromPoints = (points: Point[]): Grid<Space> => {
 
   console.log(`${minX},${minY} -> ${maxX},${maxY}`);
 
-  const grid = new Grid<Space>(maxX + 1, maxY + 1, ({ x, y }) => {
-    const isRock = points.find((p) => p.x == x && p.y == y);
+  const floorYBuffer = addFloor ? 2 : 0;
+  const floorXBuffer = addFloor ? 300 : 0;
+  const grid = new Grid<Space>(
+    maxX + 1 + floorXBuffer,
+    maxY + 1 + floorYBuffer,
+    ({ x, y }) => {
+      const isRock = points.find((p) => p.x == x && p.y == y);
 
-    return { x, y, content: isRock ? 'rock' : null };
-  });
+      return { x, y, content: isRock ? 'rock' : null };
+    }
+  );
+
+  if (addFloor) {
+    for (const point of grid.Values[maxY + floorYBuffer])
+      point.content = 'rock';
+  }
 
   return grid;
 };
@@ -106,13 +120,15 @@ const checkPoint = (
 };
 
 export const renderGrid = (grid: Grid<Space>): void => {
-  // Part 1
-  //   const maxY = 9;
-  //   const minX = 494;
-  //   const maxX = 503;
+  // Example
+  //   const minY = 0;
+  //   const maxY = 11; // 9 for Part 1
+  //   const minX = 474;
+  //   const maxX = 523;
 
+  // Input
   const minY = 10;
-  const maxY = 80;
+  const maxY = 174;
   const minX = 472;
   const maxX = 573;
 
