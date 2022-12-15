@@ -11,42 +11,50 @@ const start = async () => {
 
   const info = parseInput(content);
 
-  console.log(info);
-
-  // Create set of sensors + beacons
-  const sensors = new Set<string>(
-    info.sensors.map((s) => pointToString(s.sensor))
-  );
-  const beacons = new Set<string>(
-    info.sensors.map((s) => pointToString(s.beacon))
-  );
-
-  // Part 1
-
-  // Walk from minX to maxY for Y, allow a buffer
-  let points = 0;
-
   // Example
-  //const y = 10;
+  //const searchSize = 20;
 
   // Input
-  const y = 2000000;
+  const searchSize = 4000000;
 
-  for (let x = info.minX - 5000000; x < info.maxX + 5000000; x++) {
-    const currentPoint = { x, y };
-    const pointAsString = pointToString(currentPoint);
+  const startX = 0;
+  const startY = 0;
 
-    if (sensors.has(pointAsString) || beacons.has(pointAsString)) continue;
+  const startTime = performance.now();
 
-    const inSensorRange = info.sensors.find(
-      (i) => manhattanDistance(currentPoint, i.sensor) <= i.distanceToBeacon
-    );
+  for (let x = startX; x <= searchSize; x++) {
+    let y = startY;
+    while (y <= searchSize) {
+      const currentPoint = { x, y };
 
-    if (!inSensorRange) continue;
+      //console.log(`Checking ${x},${y}`);
 
-    points++;
+      const inSensorRange = info.sensors.find(
+        (i) => manhattanDistance(currentPoint, i.sensor) <= i.distanceToBeacon
+      );
+
+      if (inSensorRange) {
+        // We are in range of a sensor, skip Y until we're on the other side of it
+        //console.log(inSensorRange);
+        const yDistance =
+          inSensorRange.distanceToBeacon -
+          Math.abs(inSensorRange.sensor.x - x) +
+          (inSensorRange.sensor.y - y);
+
+        // yDistance moves us to the edge of the sensor boundary, then move one more spot to
+        // check the next spot
+        y += yDistance + 1;
+      } else {
+        console.log(currentPoint);
+        console.log(currentPoint.x * 4000000 + currentPoint.y);
+        console.log(
+          `Search took ${performance.now() - startTime} milliseconds`
+        );
+
+        return;
+      }
+    }
   }
-  console.log(points);
 };
 
 start();
