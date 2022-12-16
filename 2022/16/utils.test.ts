@@ -1,5 +1,5 @@
 import { RoomMap, RouteMap } from './types';
-import { optimizeRouteMap } from './utils';
+import { collapseAllRoutes, optimizeRouteMap } from './utils';
 
 describe('optimizeRouteMap', () => {
   test('remove single node', () => {
@@ -182,5 +182,46 @@ describe('optimizeRouteMap', () => {
     expect(routeMap.size).toEqual(2);
     expect(routeMap.get('AA')).toEqual([{ moveCost: 2, toRoomName: 'Z' }]);
     expect(routeMap.get('Z')).toEqual([{ moveCost: 2, toRoomName: 'AA' }]);
+  });
+});
+
+describe('collapseAllRoutes', () => {
+  test('3 node test', () => {
+    const rooms: RoomMap = new Map(
+      [
+        { name: 'A', flowRate: 1 },
+        { name: 'B', flowRate: 1 },
+        { name: 'C', flowRate: 1 },
+      ].map((x) => [x.name, x])
+    );
+
+    const routeMap: RouteMap = new Map([
+      ['A', [{ moveCost: 1, toRoomName: 'B' }]],
+      [
+        'B',
+        [
+          { moveCost: 1, toRoomName: 'A' },
+          { moveCost: 1, toRoomName: 'C' },
+        ],
+      ],
+      ['C', [{ moveCost: 1, toRoomName: 'B' }]],
+    ]);
+
+    collapseAllRoutes(routeMap, rooms);
+
+    expect(routeMap.size).toEqual(3);
+
+    expect(routeMap.get('A')).toEqual([
+      { moveCost: 1, toRoomName: 'B' },
+      { moveCost: 2, toRoomName: 'C' },
+    ]);
+    expect(routeMap.get('B')).toEqual([
+      { moveCost: 1, toRoomName: 'A' },
+      { moveCost: 1, toRoomName: 'C' },
+    ]);
+    expect(routeMap.get('C')).toEqual([
+      { moveCost: 1, toRoomName: 'B' },
+      { moveCost: 2, toRoomName: 'A' },
+    ]);
   });
 });

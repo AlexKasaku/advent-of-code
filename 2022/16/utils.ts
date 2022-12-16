@@ -73,3 +73,42 @@ export const optimizeRouteMap = (routeMap: RouteMap, rooms: RoomMap) => {
     routeMap.delete(zeroRoom.name);
   }
 };
+
+export const collapseAllRoutes = (routeMap: RouteMap, rooms: RoomMap) => {
+  // Collapse all routes so we know the distance from each room to
+  // each other room.
+
+  // To do this we will walk the graph and add connections as we find them, starting from 'AA'.
+  const visited = new Set<string>();
+
+  for (const [roomName, routes] of routeMap.entries()) {
+    for (const route of routes) {
+      // Take all the other routes besides this one and add 1 cost to them.
+      const routesToAdd: Route[] = [
+        ...routes
+          .filter((r) => r.toRoomName != route.toRoomName)
+          .map(({ moveCost, toRoomName }) => ({
+            moveCost: moveCost + route.moveCost,
+            toRoomName,
+          })),
+      ];
+
+      const destinationRoomRoutes = routeMap.get(route.toRoomName);
+
+      if (!destinationRoomRoutes)
+        throw 'Could not find routes for room: ' + route.toRoomName;
+
+      // Now push that to this route destination to join them up, if they
+      // are more efficent than existing routes
+      for (const routeToAdd of routesToAdd) {
+        const existingRoute = destinationRoomRoutes.find(
+          (r) => r.toRoomName == routeToAdd.toRoomName
+        );
+
+        if (!existingRoute) destinationRoomRoutes.push(routeToAdd);
+        else if (routeToAdd.moveCost < existingRoute.moveCost)
+          existingRoute.moveCost = routeToAdd.moveCost;
+      }
+    }
+  }
+};

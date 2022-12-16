@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import { RoomMap, RouteMap } from './types';
-import { optimizeRouteMap, parseInput } from './utils';
+import { collapseAllRoutes, optimizeRouteMap, parseInput } from './utils';
 
 const file = './files/example.txt';
 //const file = './files/input.txt';
@@ -21,10 +21,12 @@ const start = async () => {
   );
 
   console.log(rooms);
-  console.log(routeMap);
 
   // Optimize route map by removing 0 nodes (except AA)
   optimizeRouteMap(routeMap, rooms);
+
+  // Collapse all routes so we know the distance between any two rooms
+  collapseAllRoutes(routeMap, rooms);
 
   console.log(routeMap);
 };
