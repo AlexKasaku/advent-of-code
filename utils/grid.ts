@@ -9,12 +9,16 @@ export type Direction = 'up' | 'down' | 'left' | 'right';
 
 export class Grid<T> {
   Values: T[][];
+  readonly Width: number;
+  readonly Height: number;
 
   constructor(
     width: number,
     height: number,
     initializationCallback?: (position: Position) => T
   ) {
+    this.Width = width;
+    this.Height = height;
     this.Values = [...Array(height)].map(() => new Array(width));
 
     if (initializationCallback)
