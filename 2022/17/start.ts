@@ -1,13 +1,50 @@
-import { Grid } from '@utils/grid';
+import { Grid, Position } from '@utils/grid';
 import fs from 'fs';
-import { EOL } from 'os';
 import path from 'path';
-import { HorizontalRock, Rock } from './rock';
+import {
+  HorizontalRock,
+  LRock,
+  PlusRock,
+  Rock,
+  SquareRock,
+  VerticalRock,
+} from './rock';
 import { Space } from './types';
-import { parseInput } from './utils';
+import { parseInput, renderGrid } from './utils';
 
-const file = './files/example.txt';
-//const file = './files/input.txt';
+//const file = './files/example.txt';
+const file = './files/input.txt';
+
+let rockIndex = 0;
+const createRock = (position: Position, grid: Grid<Space>) => {
+  let rock: Rock;
+  switch (rockIndex) {
+    case 0:
+      rock = new HorizontalRock(position, grid);
+      break;
+    case 1:
+      rock = new PlusRock(position, grid);
+      break;
+    case 2:
+      rock = new LRock(position, grid);
+      break;
+    case 3:
+      rock = new VerticalRock(position, grid);
+      break;
+    default:
+    case 4:
+      rock = new SquareRock(position, grid);
+      break;
+  }
+
+  if (rockIndex == 4) rockIndex = 0;
+  else rockIndex++;
+  return rock;
+};
+
+const logPostion = (currentRock: Rock) => {
+  console.log(`Rock at ${JSON.stringify(currentRock.Position)}`);
+};
 
 const start = async () => {
   const content = fs.readFileSync(path.join(__dirname, file), 'utf8');
@@ -30,7 +67,8 @@ const start = async () => {
     if (!currentRock) {
       // Spawn rock
       const spawnPosition = { x: 2, y: highestRock + 3 };
-      currentRock = new HorizontalRock(spawnPosition, chamber);
+      currentRock = createRock(spawnPosition, chamber);
+      console.log(`Rock spawned at ${JSON.stringify(currentRock.Position)}`);
     } else {
       // Move the rock by jets
       const nextMove = movesRemaining.shift();
@@ -39,22 +77,42 @@ const start = async () => {
       if (movesRemaining.length == 0) movesRemaining = [...moves];
 
       // Apply the move
-      if (nextMove === 'L' && currentRock.checkLeft()) {
+      if (nextMove === 'L') {
         // Move left
-        currentRock.Position.x--;
+        const moveLeft = currentRock.checkLeft();
+
+        if (moveLeft) {
+          //console.log('Moved left');
+          currentRock.Position.x--;
+          //logPostion(currentRock);
+        } else {
+          //console.log("Couldn't move left");
+        }
       } else if (currentRock.checkRight()) {
         // Move right
+        //console.log('Moved right');
         currentRock.Position.x++;
+        //logPostion(currentRock);
+      } else {
+        //console.log("Couldn't move right");
       }
 
       // Check if can move down
       if (currentRock.checkDown()) {
         // Move down
+        //console.log('Falling');
         currentRock.Position.y--;
+
+        //logPostion(currentRock);
       } else {
         // Rock can't move, fill in the space
+        console.log('Stopping');
+        logPostion(currentRock);
+
         currentRock.fillInSpace();
-        highestRock = currentRock.Position.y;
+        if (currentRock.Position.y + currentRock.Shape.length > highestRock)
+          highestRock = currentRock.Position.y + currentRock.Shape.length; // Shape-length represents height
+        console.log(highestRock);
 
         // Clear this rock and next loop we'll spawn another;
         currentRock = null;
@@ -64,6 +122,9 @@ const start = async () => {
   }
 
   console.log(highestRock);
+
+  renderGrid(chamber, 20);
+
   //console.dir(chamber.Values, { depth: null });
 };
 

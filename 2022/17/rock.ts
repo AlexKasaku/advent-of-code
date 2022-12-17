@@ -3,103 +3,118 @@ import { Space } from './types';
 
 export interface Rock {
   Position: Position;
+  Shape: boolean[][];
 
   checkLeft: () => boolean;
   checkRight: () => boolean;
   checkDown: () => boolean;
   fillInSpace: () => void;
+  //getShapeHeight: () => number;
 }
 
-class BaseRock {
+class BaseRock implements Rock {
   Position: Position;
   Grid: Grid<Space>;
+
+  Shape: boolean[][];
 
   constructor(position: Position, grid: Grid<Space>) {
     this.Position = position;
     this.Grid = grid;
+    this.Shape = [[]];
+  }
+
+  compareShapeToGridSegment = (position: Position) => {
+    const flatShape = this.Shape.flat();
+    const segment = this.Grid.getSegment(
+      position,
+      this.Shape[0].length,
+      this.Shape.length
+    ).flat();
+
+    return (
+      segment.length == flatShape.length &&
+      !segment.flat().some((x, index) => flatShape[index] && x.isFilled)
+    );
+  };
+
+  checkLeft = () =>
+    this.compareShapeToGridSegment({
+      x: this.Position.x - 1,
+      y: this.Position.y,
+    });
+  checkRight = () =>
+    this.compareShapeToGridSegment({
+      x: this.Position.x + 1,
+      y: this.Position.y,
+    });
+  checkDown = () =>
+    this.compareShapeToGridSegment({
+      x: this.Position.x,
+      y: this.Position.y - 1,
+    });
+
+  fillInSpace = (): void => {
+    const flatShape = this.Shape.flat();
+    this.Grid.updateEachInSegment(
+      this.Position,
+      this.Shape[0].length,
+      this.Shape.length,
+      (space) => {
+        const piece = flatShape.shift();
+        if (piece) space.isFilled = true;
+        return space;
+      }
+    );
+  };
+
+  //getShapeHeight = () => this.Shape.length;
+}
+
+export class HorizontalRock extends BaseRock {
+  constructor(position: Position, grid: Grid<Space>) {
+    super({ x: position.x, y: position.y }, grid);
+    this.Shape = [[true, true, true, true]];
   }
 }
 
-//
-// 0123
-// ####
-//
-export class HorizontalRock extends BaseRock implements Rock {
-  checkLeft = (): boolean =>
-    this.Position.x > 0 &&
-    !this.Grid.get({ x: this.Position.x - 1, y: this.Position.y })?.isFilled;
-
-  checkRight = (): boolean =>
-    this.Position.x < this.Grid.Width - 5 &&
-    !this.Grid.get({ x: this.Position.x + 4, y: this.Position.y })?.isFilled;
-
-  checkDown = (): boolean =>
-    this.Position.y >= 1 &&
-    !this.Grid.get({ x: this.Position.x, y: this.Position.y - 1 })?.isFilled &&
-    !this.Grid.get({ x: this.Position.x + 1, y: this.Position.y - 1 })
-      ?.isFilled &&
-    !this.Grid.get({ x: this.Position.x + 2, y: this.Position.y - 1 })
-      ?.isFilled &&
-    !this.Grid.get({ x: this.Position.x + 3, y: this.Position.y - 1 })
-      ?.isFilled;
-
-  fillInSpace = (): void => {
-    this.Grid.get(this.Position)!.isFilled = true;
-    this.Grid.get({ x: this.Position.x + 1, y: this.Position.y })!.isFilled =
-      true;
-    this.Grid.get({ x: this.Position.x + 2, y: this.Position.y })!.isFilled =
-      true;
-    this.Grid.get({ x: this.Position.x + 3, y: this.Position.y })!.isFilled =
-      true;
-  };
+export class PlusRock extends BaseRock {
+  constructor(position: Position, grid: Grid<Space>) {
+    super({ x: position.x, y: position.y }, grid);
+    this.Shape = [
+      [false, true, false],
+      [true, true, true],
+      [false, true, false],
+    ];
+  }
 }
 
-//  012
-//2 .#.
-//1 ###
-//0 .#.
-//
-export class PlusRock extends BaseRock implements Rock {
-  checkLeft = (): boolean =>
-    this.Position.x > 0 &&
-    !this.Grid.get({ x: this.Position.x - 2, y: this.Position.y })?.isFilled &&
-    !this.Grid.get({ x: this.Position.x - 1, y: this.Position.y - 1 })
-      ?.isFilled &&
-    !this.Grid.get({ x: this.Position.x - 2, y: this.Position.y - 2 })
-      ?.isFilled;
+export class LRock extends BaseRock {
+  constructor(position: Position, grid: Grid<Space>) {
+    super({ x: position.x, y: position.y }, grid);
 
-  checkRight = (): boolean =>
-    this.Position.x < this.Grid.Width - 4 &&
-    !this.Grid.get({ x: this.Position.x + 2, y: this.Position.y })?.isFilled &&
-    !this.Grid.get({ x: this.Position.x + 3, y: this.Position.y - 1 })
-      ?.isFilled &&
-    !this.Grid.get({ x: this.Position.x + 2, y: this.Position.y - 2 })
-      ?.isFilled;
+    // Note that shape appears vertically flipped here because the Y-index is flipped
+    this.Shape = [
+      [true, true, true],
+      [false, false, true],
+      [false, false, true],
+    ];
+  }
+}
 
-  checkDown = (): boolean =>
-    this.Position.y >= 3 &&
-    !this.Grid.get({ x: this.Position.x, y: this.Position.y - 2 })?.isFilled &&
-    !this.Grid.get({ x: this.Position.x + 1, y: this.Position.y - 3 })
-      ?.isFilled &&
-    !this.Grid.get({ x: this.Position.x + 2, y: this.Position.y - 2 })
-      ?.isFilled;
+export class VerticalRock extends BaseRock {
+  constructor(position: Position, grid: Grid<Space>) {
+    super({ x: position.x, y: position.y }, grid);
+    this.Shape = [[true], [true], [true], [true]];
+  }
+}
 
-  fillInSpace = (): void => {
-    this.Grid.get({ x: this.Position.x + 1, y: this.Position.y })!.isFilled =
-      true;
-    this.Grid.get({ x: this.Position.x, y: this.Position.y - 1 })!.isFilled =
-      true;
-    this.Grid.get({
-      x: this.Position.x + 1,
-      y: this.Position.y - 1,
-    })!.isFilled = true;
-    this.Grid.get({
-      x: this.Position.x + 2,
-      y: this.Position.y - 1,
-    })!.isFilled = true;
-    this.Grid.get({
-      x: this.Position.x + 1,
-      y: this.Position.y - 2,
-    })!.isFilled = true;
-  };
+export class SquareRock extends BaseRock {
+  constructor(position: Position, grid: Grid<Space>) {
+    super({ x: position.x, y: position.y }, grid);
+    this.Shape = [
+      [true, true],
+      [true, true],
+    ];
+  }
 }

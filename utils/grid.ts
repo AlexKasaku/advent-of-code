@@ -63,6 +63,21 @@ export class Grid<T> {
     this.Values[y][x] = value;
   };
 
+  getSegment = ({ x, y }: Position, width: number, height: number) =>
+    this.Values.slice(y, y + height).map((row) => row.slice(x, x + width));
+
+  updateEachInSegment = (
+    { x, y }: Position,
+    width: number,
+    height: number,
+    callback: (value: T) => T
+  ): void => {
+    for (let curY = y; curY < y + height; curY++) {
+      for (let curX = x; curX < x + width; curX++)
+        this.Values[curY][curX] = callback(this.Values[curY][curX]);
+    }
+  };
+
   log = () => {
     console.dir(this.Values, { depth: null });
   };

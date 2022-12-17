@@ -37,16 +37,52 @@ describe('grid', () => {
     });
   });
 
-  describe('getAllInDirection', () => {
+  // describe('getAllInDirection', () => {
+  //   const grid = new Grid(3, 3, ({ x, y }) => y * 3 + x + 1);
+
+  //   it.each([[{ x: 0, y: 0 }, 'up', true, [1]]])(
+  //     'returns correct positions',
+  //     (position, direction, inclusive, expected) => {
+  //       expect(
+  //         grid.getAllInDirection(position, direction as Direction, inclusive)
+  //       ).toEqual(expected);
+  //     }
+  //   );
+  // });
+
+  describe('getSegment', () => {
     const grid = new Grid(3, 3, ({ x, y }) => y * 3 + x + 1);
 
-    it.each([[{ x: 0, y: 0 }, 'up', true, [1]]])(
-      'returns correct positions',
-      (position, direction, inclusive, expected) => {
-        expect(
-          grid.getAllInDirection(position, direction as Direction, inclusive)
-        ).toEqual(expected);
+    it('returns correct segment of grid when completely on grid', () => {
+      expect(grid.getSegment({ x: 0, y: 0 }, 2, 2)).toEqual([
+        [1, 2],
+        [4, 5],
+      ]);
+    });
+
+    it.each([
+      [{ x: 2, y: 0 }, 2, 2, [[3], [6]]],
+      [{ x: 2, y: 2 }, 2, 2, [[9]]],
+      [{ x: 2, y: 4 }, 2, 2, []],
+    ])(
+      'returns correct partial segment of grid when partially off grid',
+      (position, width, height, expected) => {
+        expect(grid.getSegment(position, width, height)).toEqual(expected);
       }
     );
+  });
+
+  describe('forEachInSegment', () => {
+    const grid = new Grid(3, 3, () => 1);
+
+    it('updates segments correctly in grid', () => {
+      grid.updateEachInSegment({ x: 0, y: 0 }, 2, 2, (x) => x + 1);
+
+      expect(grid.Values).toEqual([
+        [2, 2, 1],
+        [2, 2, 1],
+        [1, 1, 1],
+      ]);
+    });
   });
 });
