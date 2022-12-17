@@ -93,6 +93,7 @@ const start = async () => {
       turnedOnRoomsFromHere,
       routeMap
     );
+    //console.log(remainingCombos);
 
     if (remainingCombos.length > 0) {
       // Push all to the stack
@@ -171,13 +172,16 @@ const findRemainingRoomCombos = (
 
   if (room.me == null && room.elephant == null) {
     // No more options left
-  } else if (room.me == null) {
+  } else if (room.me == null || roomOptionsMe.length == 0) {
     // I'm stuck, elephant still has options
     remainingCombos = roomOptionsElephant.map((option) => ({
       me: null,
       elephant: option,
     }));
-  } else if (room.elephant == null) {
+    // console.log(
+    //   `Elephant can still move to ${remainingCombos.length} locations`
+    // );
+  } else if (room.elephant == null || roomOptionsElephant.length == 0) {
     // He's stuck, I still have options
     remainingCombos = roomOptionsMe.map((option) => ({
       me: option,
