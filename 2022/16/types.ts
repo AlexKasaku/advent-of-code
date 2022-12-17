@@ -17,5 +17,5 @@ export type RouteState = {
   room: Combo<string | null>;
   timeRemaining: Combo<number>;
   currentFlowRate: number;
-  roomsTurnedOn: Map<string, 'elephant' | 'me'>;
+  roomsTurnedOn: Map<string, string>;
 };

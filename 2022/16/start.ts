@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import { Combo, RoomMap, RouteMap, RouteState } from './types';
+import { Combo, RoomMap, Route, RouteMap, RouteState } from './types';
 import { collapseAllRoutes, optimizeRouteMap, parseInput } from './utils';
 
 //const file = './files/example.txt';
@@ -20,7 +20,7 @@ const start = async () => {
     ])
   );
 
-  //console.log(rooms);
+  console.log(rooms);
 
   // Optimize route map by removing 0 nodes (except AA)
   optimizeRouteMap(routeMap, rooms);
@@ -28,7 +28,7 @@ const start = async () => {
   // Collapse all routes so we know the distance between any two rooms
   collapseAllRoutes(routeMap, rooms);
 
-  //console.log(routeMap);
+  console.log(routeMap);
 
   const timeRemaining = 26;
 
@@ -37,7 +37,7 @@ const start = async () => {
       room: { me: 'AA', elephant: 'AA' },
       timeRemaining: { me: timeRemaining, elephant: timeRemaining },
       currentFlowRate: 0,
-      roomsTurnedOn: new Map<string, 'elephant' | 'me'>(),
+      roomsTurnedOn: new Map<string, string>(),
     },
   ];
 
@@ -62,9 +62,9 @@ const start = async () => {
 
       // Calculate flowRate for turning this room on. This uses up 1 unit of time.
       timeRemaining.me--;
-      const flow = room.flowRate > 0 ? room.flowRate * timeRemaining.me : 0;
+      const flow = room.flowRate * timeRemaining.me;
 
-      turnedOnRoomsFromHere.set(room.name, 'me');
+      turnedOnRoomsFromHere.set(room.name, `me w/ ${flow}`);
 
       currentFlowRate += flow;
     }
@@ -79,10 +79,9 @@ const start = async () => {
 
       // Calculate flowRate for turning this room on. This uses up 1 unit of time.
       timeRemaining.elephant--;
-      const flow =
-        room.flowRate > 0 ? room.flowRate * timeRemaining.elephant : 0;
+      const flow = room.flowRate * timeRemaining.elephant;
 
-      turnedOnRoomsFromHere.set(room.name, 'elephant');
+      turnedOnRoomsFromHere.set(room.name, `elephant w/ ${flow}`);
 
       currentFlowRate += flow;
     }
@@ -104,8 +103,11 @@ const start = async () => {
             elephant: combo.elephant?.toRoomName ?? null,
           },
           timeRemaining: {
-            me: timeRemaining.me - (combo.me?.moveCost ?? 0),
-            elephant: timeRemaining.elephant - (combo.elephant?.moveCost ?? 0),
+            me: combo.me != null ? timeRemaining.me - combo.me.moveCost : 0,
+            elephant:
+              combo.elephant != null
+                ? timeRemaining.elephant - combo.elephant?.moveCost
+                : 0,
           },
           currentFlowRate,
           roomsTurnedOn: turnedOnRoomsFromHere,
@@ -116,9 +118,11 @@ const start = async () => {
       if (currentFlowRate > highestFlowRate) {
         highestFlowRate = currentFlowRate;
         console.log(
-          `New highest. Rooms turned on: ${JSON.stringify([
+          `Rooms: ${JSON.stringify([
             ...turnedOnRoomsFromHere.entries(),
-          ])}, flow rate: ${currentFlowRate}}`
+          ])} time remaining: ${JSON.stringify(
+            timeRemaining
+          )}, flow rate: ${currentFlowRate}`
         );
       }
     }
@@ -126,6 +130,7 @@ const start = async () => {
 
   // Submitted: 2492, too low. Finished in 4239s due to console outputs! 94s if console outputs only for new highest.
   // Submitted: 2502, too low.
+  // Submitted: 2549 based on adding up reported best route.
 
   console.log(highestFlowRate);
 };
@@ -133,7 +138,7 @@ const start = async () => {
 const findRemainingRoomCombos = (
   room: Combo<string | null>,
   timeRemaining: Combo<number>,
-  roomsTurnedOn: Map<string, 'elephant' | 'me'>,
+  roomsTurnedOn: Map<string, string>,
   routeMap: RouteMap
 ) => {
   const routeMapFromMe = room.me != null ? routeMap.get(room.me)! : [];
@@ -141,13 +146,14 @@ const findRemainingRoomCombos = (
     room.elephant != null ? routeMap.get(room.elephant)! : [];
 
   // Get rooms I can move to. This is all rooms that haven't already been visited
-  // and that I can get to and enable in the time remaining.
+  // and that I can get to and enable in the time remaining with at least 1 minute left
+  // after (otherwise enabling this will give 0 flow so be useless)
   const roomOptionsMe =
     room.me != null
       ? routeMapFromMe.filter(
           (route) =>
             !roomsTurnedOn.has(route.toRoomName) &&
-            timeRemaining.me > route.moveCost + 1
+            timeRemaining.me >= route.moveCost + 2
         )
       : [];
 
@@ -157,15 +163,14 @@ const findRemainingRoomCombos = (
       ? routeMapFromElephant.filter(
           (route) =>
             !roomsTurnedOn.has(route.toRoomName) &&
-            timeRemaining.elephant > route.moveCost + 1
+            timeRemaining.elephant >= route.moveCost + 2
         )
       : [];
 
-  let remainingCombos = [];
+  let remainingCombos: Combo<Route | null>[] = [];
 
   if (room.me == null && room.elephant == null) {
     // No more options left
-    return [];
   } else if (room.me == null) {
     // I'm stuck, elephant still has options
     remainingCombos = roomOptionsElephant.map((option) => ({
@@ -191,81 +196,5 @@ const findRemainingRoomCombos = (
   }
   return remainingCombos;
 };
-
-// const findBestRoute = (
-//   roomCombo: Combo<string | null>,
-//   timeRemaining: Combo<number>,
-//   turnedOnRooms: Set<string>,
-//   rooms: RoomMap,
-//   routeMap: RouteMap
-// ): number => {
-//   // Check time remaining on each
-//   console.log(`Have moved to: ${JSON.stringify(roomCombo)}`);
-
-//   let totalFlow = 0;
-//   const turnedOnRoomsNew = new Set([...turnedOnRooms]);
-
-//   if (timeRemaining.me > 0 && roomCombo.me != null) {
-//     // Get room
-//     const room = rooms.get(roomCombo.me)!;
-
-//     // Enable this room (if not AA)
-//     const flow = room.flowRate > 0 ? room.flowRate * --timeRemaining.me : 0;
-
-//     turnedOnRoomsNew.add(roomCombo.me);
-
-//     totalFlow += flow;
-//   }
-
-//   if (timeRemaining.elephant > 0 && roomCombo.elephant != null) {
-//     // Get room
-//     const room = rooms.get(roomCombo.elephant)!;
-
-//     // Enable this room (if not AA)
-//     const flow =
-//       room.flowRate > 0 ? room.flowRate * --timeRemaining.elephant : 0;
-
-//     turnedOnRoomsNew.add(roomCombo.elephant);
-
-//     totalFlow += flow;
-//   }
-
-//   console.log(
-//     `Turned on: ${[...turnedOnRooms.values()]}. Total flow: ${totalFlow}`
-//   );
-
-//   // console.log(
-//   //   `Current room: ${thisRoomName}. Flow of this room: ${flow}. Time remaining: ${timeRemaining}`
-//   // );
-//   // console.log(turnedOnRoomsNew);
-
-//   // Get our next room options, don't take an option if it is cheaper for the other
-
-//   console.log(remainingCombos);
-
-//   const roomsFromHere = remainingCombos.map((combo) =>
-//     findBestRoute(
-//       {
-//         me: combo.me?.toRoomName ?? null,
-//         elephant: combo.elephant?.toRoomName ?? null,
-//       },
-//       {
-//         me: combo.me != null ? timeRemaining.me - combo.me.moveCost : 0,
-//         elephant:
-//           combo.elephant != null
-//             ? timeRemaining.elephant - combo.elephant.moveCost
-//             : 0,
-//       },
-//       turnedOnRoomsNew,
-//       rooms,
-//       routeMap
-//     )
-//   );
-
-//   const highest = Math.max(...roomsFromHere, 0);
-//   console.log(`Highest sub-route was ${highest}, adding to ${totalFlow}`);
-
-//   return roomsFromHere.length ? totalFlow + highest : totalFlow;
-// };
 
 start();

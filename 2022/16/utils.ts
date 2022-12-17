@@ -79,8 +79,6 @@ export const collapseAllRoutes = (routeMap: RouteMap, rooms: RoomMap) => {
   // each other room.
 
   // To do this we will walk the graph and add connections as we find them, starting from 'AA'.
-  const visited = new Set<string>();
-
   for (const [roomName, routes] of routeMap.entries()) {
     for (const route of routes) {
       // Take all the other routes besides this one and add 1 cost to them.
