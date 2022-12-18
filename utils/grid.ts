@@ -28,24 +28,38 @@ export class Grid<T> {
     );
   }
 
-  getNeighbours = ({ x, y }: Position, orthagonal: boolean = true) => [
-    ...(!orthagonal && x > 0 && y > 0 ? [this.Values[y - 1][x - 1]] : []), // Top-left
-    ...(x > 0 ? [this.Values[y][x - 1]] : []), // Left
-    ...(!orthagonal && x > 0 && y < this.Values.length - 1
-      ? [this.Values[y + 1][x - 1]]
-      : []), // Bottom-Left
-    ...(y > 0 ? [this.Values[y - 1][x]] : []), // Top
-    ...(y < this.Values.length - 1 ? [this.Values[y + 1][x]] : []), // Bottom
-    ...(!orthagonal && x < this.Values[y].length - 1 && y > 0
-      ? [this.Values[y - 1][x + 1]]
-      : []), // Top-right
-    ...(x < this.Values[y].length - 1 ? [this.Values[y][x + 1]] : []), // Right
-    ...(!orthagonal &&
-    x < this.Values[y].length - 1 &&
-    y < this.Values.length - 1
-      ? [this.Values[y + 1][x + 1]]
-      : []), // Bottom-right
-  ];
+  getNeighbours = (point: Position, orthagonal: boolean = true) => {
+    const neighbours: T[] = [];
+    this.forEachNeighbour(
+      point,
+      (value) => {
+        neighbours.push(value);
+      },
+      orthagonal
+    );
+    return neighbours;
+  };
+
+  // Raise a callback for each neighbour to the provided position. Note that if T can be undefined
+  // then the callback won't be rasied for that position.
+  forEachNeighbour = (
+    point: Position,
+    callback: (value: T, position: Position) => void,
+    orthagonal: boolean = true
+  ) => {
+    for (let x = point.x - 1; x <= point.x + 1; x++) {
+      for (let y = point.y - 1; y <= point.y + 1; y++) {
+        // Skip non-adjacent and yourself
+        if (
+          (orthagonal && Math.abs(point.x - x) + Math.abs(point.y - y) > 1) ||
+          (point.x == x && point.y == y)
+        )
+          continue;
+
+        if (this.Values?.[y]?.[x]) callback(this.Values[y][x], { x, y });
+      }
+    }
+  };
 
   getAllInDirection = (
     { x, y }: Position,

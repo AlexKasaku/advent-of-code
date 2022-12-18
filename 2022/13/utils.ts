@@ -3,7 +3,7 @@ import { List } from './types';
 export const compareLists = (left: List, right: List, indent: number = 0) =>
   innerCompare(left, right, indent) > 0;
 
-const debug = true;
+const debug = false;
 
 export const innerCompare = (
   left: List,
