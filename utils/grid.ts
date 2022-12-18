@@ -1,4 +1,5 @@
 import { range } from 'lodash';
+import { createAndInitArray } from './createArray';
 
 export type Position = {
   x: number;
@@ -19,13 +20,12 @@ export class Grid<T> {
   ) {
     this.Width = width;
     this.Height = height;
-    this.Values = [...Array(height)].map(() => new Array(width));
 
-    if (initializationCallback)
-      for (let y = 0; y < height; y++) {
-        for (let x = 0; x < width; x++)
-          this.Values[y][x] = initializationCallback({ x, y });
-      }
+    this.Values = createAndInitArray(
+      (y, x) => initializationCallback?.({ x, y }),
+      width,
+      height
+    );
   }
 
   getNeighbours = ({ x, y }: Position, orthagonal: boolean = true) => [
