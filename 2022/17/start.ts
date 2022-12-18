@@ -1,6 +1,8 @@
 import { Grid, Position } from '@utils/grid';
+import toSum from '@utils/toSum';
 import fs from 'fs';
 import path from 'path';
+import { getSystemErrorMap } from 'util';
 import {
   HorizontalRock,
   LRock,
@@ -53,12 +55,14 @@ const start = async () => {
     isFilled: false,
   }));
 
-  let rocksRemaining = 10000;
+  let rocksRemaining = 50000;
   let highestRock = 0;
   let currentRock: Rock | null = null;
   let movesRemaining = [...moves];
 
   var startTime = performance.now();
+
+  let heightIncreases = [];
 
   while (rocksRemaining > 0) {
     // Do we have a rock to move?
@@ -96,8 +100,14 @@ const start = async () => {
         // Rock can't move, fill in the space
 
         currentRock.fillInSpace();
-        if (currentRock.Position.y + currentRock.Shape.length > highestRock)
+        if (currentRock.Position.y + currentRock.Shape.length > highestRock) {
+          heightIncreases.push(
+            currentRock.Position.y + currentRock.Shape.length - highestRock
+          );
           highestRock = currentRock.Position.y + currentRock.Shape.length; // Shape-length represents height
+        } else {
+          heightIncreases.push(0);
+        }
 
         // Clear this rock and next loop we'll spawn another;
         currentRock = null;
@@ -106,10 +116,27 @@ const start = async () => {
     }
   }
 
-  console.log(highestRock);
   console.log(`Execution took ${Math.round(performance.now() - startTime)} ms`);
 
-  renderGrid(chamber, 20);
+  // Logging output for wokring out part 2:
+
+  // for (let x = 0; x < heightIncreases.length; x++) {
+  //   process.stdout.write(`${heightIncreases[x].toString()}+`);
+  //   if (x === 854) console.log();
+  //   if ((x - 854) % 1705 === 0) console.log();
+  // }
+
+  // Output total for calculating height in part 2:
+
+  console.log(`First 855: ${heightIncreases.slice(0, 855).reduce(toSum)}`);
+  console.log(
+    `Next 1705: ${heightIncreases.slice(855, 855 + 1705).reduce(toSum)}`
+  );
+  console.log(
+    `First 730 of a block: ${heightIncreases
+      .slice(855, 855 + 730)
+      .reduce(toSum)}`
+  );
 };
 
 start();
