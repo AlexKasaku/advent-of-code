@@ -1,3 +1,4 @@
+import { sign } from 'crypto';
 import fs from 'fs';
 import { EOL } from 'os';
 import path from 'path';
@@ -37,15 +38,6 @@ const moveRight = (nodeToMove: Node, positions: number): void => {
   for (let x = 0; x <= positions; x++)
     nodeToMoveBefore = nodeToMoveBefore?.next!;
 
-  // console.log(
-  //   `Moving ${nodeToMove.value} between ${nodeToMoveBefore.prev!.value} and ${
-  //     nodeToMoveBefore.value
-  //   }
-  //    in ${positions} steps`
-  // );
-
-  // Move nodes
-
   // Lift out node by connecting ones either side of it
   nodeToMove.prev!.next = nodeToMove.next;
   nodeToMove.next!.prev = nodeToMove.prev;
@@ -60,14 +52,6 @@ const moveRight = (nodeToMove: Node, positions: number): void => {
 const moveLeft = (nodeToMove: Node, positions: number): void => {
   let nodeToMoveAfter = nodeToMove;
   for (let x = 0; x <= positions; x++) nodeToMoveAfter = nodeToMoveAfter?.prev!;
-
-  // console.log(
-  //   `Moving ${nodeToMove.value} between ${nodeToMoveAfter.value} and ${
-  //     nodeToMoveAfter.next!.value
-  //   } in ${positions} steps`
-  // );
-
-  // Move nodes
 
   // Lift out node by connecting ones either side of it
   nodeToMove.prev!.next = nodeToMove.next;
@@ -105,7 +89,7 @@ const start = async () => {
       // Optimization - Check if number wraps round. Because we're moving
       // the number within a list it's in, the modulo is of the list
       // length - 1;
-      const movement = nodeToMove.value % (listLength - 1);
+      let movement = nodeToMove.value % (listLength - 1);
 
       // Skip if number would remain in same place
       if (movement === 0) {
@@ -113,8 +97,12 @@ const start = async () => {
         continue;
       }
 
-      // Potential optimization - if moving left is quicker than moving right,
-      // do that, or vice versa.
+      // Optimization - if moving a greater distance than half the list, then
+      // go the other way
+      if (Math.abs(movement) > listLength / 2) {
+        movement =
+          (listLength - Math.abs(movement) - 1) * Math.sign(movement) * -1;
+      }
 
       if (movement > 0) {
         moveRight(nodeToMove, movement);
