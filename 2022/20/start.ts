@@ -4,7 +4,6 @@ import path from 'path';
 
 //const file = './files/example.txt';
 const file = './files/input.txt';
-//const file = './files/test.txt';
 
 type Node = {
   value: number;
@@ -12,14 +11,14 @@ type Node = {
   next?: Node;
 };
 
-const createListFromInput = (input: string): Node[] => {
+const createListFromInput = (input: string, decryptionKey: number): Node[] => {
   const nodeList: Node[] = [];
 
   input
     .split(EOL)
     .map((x) => parseInt(x))
     .forEach((v, i) => {
-      const node: Node = { value: v };
+      const node: Node = { value: v * decryptionKey };
       if (i > 0) {
         node.prev = nodeList[i - 1];
         nodeList[i - 1].next = node;
@@ -38,11 +37,13 @@ const moveRight = (nodeToMove: Node, positions: number): void => {
   for (let x = 0; x <= positions; x++)
     nodeToMoveBefore = nodeToMoveBefore?.next!;
 
-  console.log(
-    `Moving ${nodeToMove.value} between ${nodeToMoveBefore.prev!.value} and ${
-      nodeToMoveBefore.value
-    }`
-  );
+  // console.log(
+  //   `Moving ${nodeToMove.value} between ${nodeToMoveBefore.prev!.value} and ${
+  //     nodeToMoveBefore.value
+  //   }
+  //    in ${positions} steps`
+  // );
+
   // Move nodes
 
   // Lift out node by connecting ones either side of it
@@ -60,11 +61,11 @@ const moveLeft = (nodeToMove: Node, positions: number): void => {
   let nodeToMoveAfter = nodeToMove;
   for (let x = 0; x <= positions; x++) nodeToMoveAfter = nodeToMoveAfter?.prev!;
 
-  console.log(
-    `Moving ${nodeToMove.value} between ${nodeToMoveAfter.value} and ${
-      nodeToMoveAfter.next!.value
-    }`
-  );
+  // console.log(
+  //   `Moving ${nodeToMove.value} between ${nodeToMoveAfter.value} and ${
+  //     nodeToMoveAfter.next!.value
+  //   } in ${positions} steps`
+  // );
 
   // Move nodes
 
@@ -79,44 +80,53 @@ const moveLeft = (nodeToMove: Node, positions: number): void => {
   nodeToMove.next!.prev = nodeToMove;
 };
 
+const logList = (zeroNode: Node) => {
+  let currentNode = zeroNode!.next;
+  console.log(0);
+  while (currentNode != zeroNode) {
+    console.log(currentNode?.value);
+    currentNode = currentNode?.next;
+  }
+};
+
 const start = async () => {
   const content = fs.readFileSync(path.join(__dirname, file), 'utf8');
 
-  const nodeList = createListFromInput(content);
+  var startTime = performance.now();
+
+  const nodeList = createListFromInput(content, 811589153);
   const zeroNode = nodeList.find((n) => n.value === 0);
   const listLength = nodeList.length;
 
-  while (nodeList.length > 0) {
-    const nodeToMove = nodeList.shift()!;
+  for (let mix = 0; mix < 10; mix++) {
+    for (const nodeToMove of nodeList) {
+      if (nodeToMove.value === 0) continue;
 
-    //console.log(`Moving ${nodeToMove.value}`);
+      // Optimization - Check if number wraps round. Because we're moving
+      // the number within a list it's in, the modulo is of the list
+      // length - 1;
+      const movement = nodeToMove.value % (listLength - 1);
 
-    if (nodeToMove.value === 0) continue;
+      // Skip if number would remain in same place
+      if (movement === 0) {
+        //console.log(`Skipping ${nodeToMove.value} as it would not move`);
+        continue;
+      }
 
-    // Optimization - Check if number wraps round. Because we're moving
-    // the number within a list it's in, the modulo is of the list length
-    // - 1;
-    const movement = nodeToMove.value % (listLength - 1);
+      // Potential optimization - if moving left is quicker than moving right,
+      // do that, or vice versa.
 
-    // Skip if number would remain in same place
-    if (movement === 0) {
-      console.log(`Skipping ${nodeToMove.value} as it would not move`);
-    }
-
-    if (movement > 0) {
-      moveRight(nodeToMove, movement);
-    } else {
-      moveLeft(nodeToMove, -movement);
+      if (movement > 0) {
+        moveRight(nodeToMove, movement);
+      } else {
+        moveLeft(nodeToMove, -movement);
+      }
     }
   }
 
-  // let currentNode = zeroNode!.next;
-  // console.log(0);
-  // while (currentNode != zeroNode) {
-  //   console.log(currentNode?.value);
-  //   currentNode = currentNode?.next;
-  // }
+  //logList(zeroNode!);
 
+  // Get 1000, 2000 and 3000 after zero.
   let currentNode = zeroNode;
   let total = 0;
   for (let x = 1; x <= 3000; x++) {
@@ -126,10 +136,11 @@ const start = async () => {
       total += currentNode!.value;
     }
   }
-
-  // Submitted: 8494, too high.
-
   console.log(`Total: ${total}`);
+
+  console.log(
+    `Execution took ${(performance.now() - startTime).toFixed(2)} milliseconds`
+  );
 };
 
 start();
