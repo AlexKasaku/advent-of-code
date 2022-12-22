@@ -10,3 +10,7 @@ export type Space = Position & {
   lastFacing: Direction | null;
   content: ContentType;
 };
+
+export type PositionAndFace = { position: Position; facing: Direction };
+
+export type WrapMap = Map<string, PositionAndFace>;

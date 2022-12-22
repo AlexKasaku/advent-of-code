@@ -1,7 +1,7 @@
 import { Grid, Position } from '@utils/grid';
 import { byDescending } from '@utils/sort';
 import { EOL } from 'os';
-import { ContentType, Direction, Move, Space } from './types';
+import { ContentType, Direction, Move, PositionAndFace, Space } from './types';
 
 export const parseMoves = (input: string): Move[] => {
   const moveRegex = /L|R|\d+/g;
@@ -67,63 +67,53 @@ export const moveOnGrid = (
   grid: Grid<Space>,
   position: Position,
   facing: Direction,
-  move: number
-): Position => {
+  move: number,
+  wrapMap: Map<string, PositionAndFace>
+): PositionAndFace => {
   // Move indicated number of steps in a direction
   let newPosition = position;
+  let newFacing = facing;
+  let wrappedPosAndFace;
 
   while (move--) {
     // Must wrap around on void spaces or edege, and stop if hit wall
     let nextSpace: Space | undefined;
-    switch (facing) {
+    switch (newFacing) {
       case 'R':
         nextSpace = grid.get({ x: newPosition.x + 1, y: newPosition.y });
-
-        if (nextSpace?.content === 'void' || nextSpace?.content === undefined) {
-          // Wrap around. Find first space that isn't void
-          nextSpace = grid.Values[newPosition.y].find(
-            (space) => space.content !== 'void'
-          );
-        }
         break;
       case 'L':
         nextSpace = grid.get({ x: newPosition.x - 1, y: newPosition.y });
-
-        if (nextSpace?.content === 'void' || nextSpace?.content === undefined) {
-          // Wrap around. Find first space that isn't void
-          nextSpace = [...grid.Values[newPosition.y]]
-            .reverse()
-            .find((space) => space.content !== 'void');
-        }
         break;
       case 'D':
         nextSpace = grid.get({ x: newPosition.x, y: newPosition.y + 1 });
-
-        if (nextSpace?.content === 'void' || nextSpace?.content === undefined) {
-          // Wrap around. Find first space that isn't void starting from top. Need
-          // to take vertical slice of array.
-          nextSpace = grid.Values.map((row) => row[newPosition.x]).find(
-            (space) => space.content !== 'void'
-          );
-        }
         break;
       case 'U':
         nextSpace = grid.get({ x: newPosition.x, y: newPosition.y - 1 });
-
-        if (nextSpace?.content === 'void' || nextSpace?.content === undefined) {
-          // Wrap around. Find first space that isn't void starting from top. Need
-          // to take vertical slice of array.
-          nextSpace = grid.Values.map((row) => row[newPosition.x])
-            .reverse()
-            .find((space) => space.content !== 'void');
-        }
         break;
+    }
+
+    if (nextSpace?.content === 'void' || nextSpace?.content === undefined) {
+      // Wrap around. Use the wrap map to find the next position and facing
+      wrappedPosAndFace = wrapMap.get(
+        `${newPosition.x},${newPosition.y},${newFacing}`
+      );
+
+      if (!wrappedPosAndFace)
+        throw `Needed to wrap but failed to find result in map. Position: ${newPosition}. Facing: ${newFacing}`;
+
+      console.log(
+        `Wrapped from ${newPosition.x},${newPosition.y},${newFacing} to ${wrappedPosAndFace.position.x},${wrappedPosAndFace.position.y},${wrappedPosAndFace.facing}`
+      );
+
+      nextSpace = grid.get(wrappedPosAndFace.position);
     }
 
     if (nextSpace?.content === 'open') {
       newPosition = { x: nextSpace.x, y: nextSpace.y };
+      newFacing = wrappedPosAndFace?.facing ?? newFacing;
     } else if (nextSpace?.content === 'wall') {
-      // Stop here
+      // Stop here.
       move = 0;
     } else {
       // We shouldn't be here with the next space as void
@@ -131,10 +121,10 @@ export const moveOnGrid = (
     }
 
     // Record position on gird
-    grid.get(newPosition)!.lastFacing = facing;
+    grid.get(newPosition)!.lastFacing = newFacing;
   }
 
-  return newPosition;
+  return { position: newPosition, facing: newFacing };
 };
 
 const getRenderChar = (space: Space): string => {
@@ -165,4 +155,85 @@ export const renderGrid = (grid: Grid<Space>): void => {
     }
     console.log();
   }
+};
+
+export const createWrapMapExample = (
+  width: number,
+  height: number
+): Map<string, PositionAndFace> => {
+  const wrapMap = new Map<string, PositionAndFace>();
+
+  [0, 1, 2, 3].forEach((i) => {
+    // 1 - 2
+    wrapMap.set(`${(width * 2) / 4 + i},0,U`, {
+      position: { x: (width * 1) / 4 - 1 - i, y: (height * 1) / 3 },
+      facing: 'D',
+    });
+    wrapMap.set(`${(width * 1) / 4 - 1 - i},${(height * 1) / 3},U`, {
+      position: { x: (width * 2) / 4 + i, y: 0 },
+      facing: 'D',
+    });
+
+    // 1 - 3
+    wrapMap.set(`${(width * 2) / 4},${i},L`, {
+      position: { x: (width * 1) / 4 + i, y: (height * 1) / 3 },
+      facing: 'D',
+    });
+    wrapMap.set(`${(width * 1) / 4 + i},${(height * 1) / 3},U`, {
+      position: { x: (width * 2) / 4, y: i },
+      facing: 'R',
+    });
+
+    // 1 - 6
+    wrapMap.set(`${(width * 3) / 4 - 1},${i},R`, {
+      position: { x: width - 1, y: height - 1 - i },
+      facing: 'L',
+    });
+    wrapMap.set(`${width - 1},${height - 1 - i},R`, {
+      position: { x: (width * 3) / 4 - 1, y: i },
+      facing: 'L',
+    });
+
+    // 2 - 6
+    wrapMap.set(`${0},${(height * 1) / 3 + i},L`, {
+      position: { x: width - 1 - i, y: height - 1 },
+      facing: 'U',
+    });
+    wrapMap.set(`${width - 1 - i},${height - 1},D`, {
+      position: { x: 0, y: (height * 1) / 3 + i },
+      facing: 'R',
+    });
+
+    // 3 - 5
+    wrapMap.set(`${(width * 1) / 4 + i},${(height * 2) / 3 - 1},D`, {
+      position: { x: (width * 2) / 4, y: (height * 2) / 3 + i },
+      facing: 'L',
+    });
+    wrapMap.set(`${(width * 2) / 4},${(height * 2) / 3 + i},R`, {
+      position: { x: (width * 1) / 4 + i, y: (height * 2) / 3 - 1 },
+      facing: 'U',
+    });
+
+    // 2 - 5
+    wrapMap.set(`${i},${(height * 2) / 3 - 1},D`, {
+      position: { x: (width * 3) / 4 - 1 - i, y: height - 1 },
+      facing: 'U',
+    });
+    wrapMap.set(`${(width * 3) / 4 - 1 - i},${height - 1},D`, {
+      position: { x: i, y: (height * 2) / 3 - i },
+      facing: 'U',
+    });
+
+    // 4 - 6
+    wrapMap.set(`${(width * 3) / 4 - 1},${(height * 1) / 3 + i},R`, {
+      position: { x: width - 1 - i, y: (height * 2) / 3 },
+      facing: 'D',
+    });
+    wrapMap.set(`${width - 1 - i},${(height * 2) / 3},U`, {
+      position: { x: (width * 3) / 4 - 1, y: (height * 1) / 3 + i },
+      facing: 'L',
+    });
+  });
+
+  return wrapMap;
 };
