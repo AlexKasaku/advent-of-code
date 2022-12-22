@@ -1,4 +1,5 @@
 import { Grid, Position } from '@utils/grid';
+import range from '@utils/range';
 import { byDescending } from '@utils/sort';
 import { EOL } from 'os';
 import { ContentType, Direction, Move, PositionAndFace, Space } from './types';
@@ -100,7 +101,7 @@ export const moveOnGrid = (
       );
 
       if (!wrappedPosAndFace)
-        throw `Needed to wrap but failed to find result in map. Position: ${newPosition}. Facing: ${newFacing}`;
+        throw `Needed to wrap but failed to find result in map. Position: ${newPosition.x},${newPosition.y}. Facing: ${newFacing}`;
 
       console.log(
         `Wrapped from ${newPosition.x},${newPosition.y},${newFacing} to ${wrappedPosAndFace.position.x},${wrappedPosAndFace.position.y},${wrappedPosAndFace.facing}`
@@ -231,6 +232,87 @@ export const createWrapMapExample = (
     });
     wrapMap.set(`${width - 1 - i},${(height * 2) / 3},U`, {
       position: { x: (width * 3) / 4 - 1, y: (height * 1) / 3 + i },
+      facing: 'L',
+    });
+  });
+
+  return wrapMap;
+};
+
+export const createWrapMapReal = (
+  width: number,
+  height: number
+): Map<string, PositionAndFace> => {
+  const wrapMap = new Map<string, PositionAndFace>();
+
+  range(0, 49).forEach((i) => {
+    // 1 - 2
+    wrapMap.set(`${(width * 1) / 3 + i},0,U`, {
+      position: { x: 0, y: (height * 3) / 4 + i },
+      facing: 'R',
+    });
+    wrapMap.set(`0,${(height * 3) / 4 + i},L`, {
+      position: { x: (width * 1) / 3 + i, y: 0 },
+      facing: 'D',
+    });
+
+    // 1 - 3
+    wrapMap.set(`${(width * 1) / 3},${i},L`, {
+      position: { x: 0, y: (height * 3) / 4 - 1 - i },
+      facing: 'R',
+    });
+    wrapMap.set(`0,${(height * 3) / 4 - 1 - i},L`, {
+      position: { x: (width * 1) / 3, y: i },
+      facing: 'R',
+    });
+
+    // 4 - 3
+    wrapMap.set(`${(width * 1) / 3},${(height * 1) / 4 + i},L`, {
+      position: { x: i, y: (height * 2) / 4 },
+      facing: 'D',
+    });
+    wrapMap.set(`${i},${(height * 2) / 4},U`, {
+      position: { x: (width * 1) / 3, y: (height * 1) / 4 + i },
+      facing: 'R',
+    });
+
+    // 4 - 6
+    wrapMap.set(`${(width * 2) / 3 - 1},${(height * 1) / 4 + i},R`, {
+      position: { x: (width * 2) / 3 + i, y: (height * 1) / 4 - 1 },
+      facing: 'U',
+    });
+    wrapMap.set(`${(width * 2) / 3 + i},${(height * 1) / 4 - 1},D`, {
+      position: { x: (width * 2) / 3 - 1, y: (height * 1) / 4 + i },
+      facing: 'L',
+    });
+
+    // 6 - 2
+    wrapMap.set(`${(width * 2) / 3 + i},0,U`, {
+      position: { x: i, y: height - 1 },
+      facing: 'U',
+    });
+    wrapMap.set(`${i},${height - 1},D`, {
+      position: { x: (width * 2) / 3 + i, y: 0 },
+      facing: 'D',
+    });
+
+    // 6 - 5
+    wrapMap.set(`${width - 1},${i},R`, {
+      position: { x: (width * 2) / 3 - 1, y: (height * 3) / 4 - 1 - i },
+      facing: 'L',
+    });
+    wrapMap.set(`${(width * 2) / 3 - 1},${(height * 3) / 4 - 1 - i},R`, {
+      position: { x: width - 1, y: i },
+      facing: 'L',
+    });
+
+    // 2 - 5
+    wrapMap.set(`${(width * 1) / 3 - 1},${(height * 3) / 4 + i},R`, {
+      position: { x: (width * 1) / 3 + i, y: (height * 3) / 4 - 1 },
+      facing: 'U',
+    });
+    wrapMap.set(`${(width * 1) / 3 + i},${(height * 3) / 4 - 1},D`, {
+      position: { x: (width * 1) / 3 - 1, y: (height * 3) / 4 + i },
       facing: 'L',
     });
   });

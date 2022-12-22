@@ -8,10 +8,11 @@ import {
   turn,
   renderGrid,
   createWrapMapExample,
+  createWrapMapReal,
 } from './utils';
 
-const file = './files/example.txt';
-//const file = './files/input.txt';
+//const file = './files/example.txt';
+const file = './files/input.txt';
 
 const logPosition = (position: Position, facing: Direction) =>
   console.log(`At: ${position.x}, ${position.y} Facing: ${facing}`);
@@ -44,10 +45,7 @@ const start = async () => {
   )!;
   let facing: Direction = 'R';
 
-  const wrapMap = createWrapMapExample(
-    grid.Values[0].length,
-    grid.Values.length
-  );
+  const wrapMap = createWrapMapReal(grid.Values[0].length, grid.Values.length);
 
   logPosition(currentPosition, facing);
   while (moves.length) {
