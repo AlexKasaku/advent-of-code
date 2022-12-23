@@ -4,6 +4,7 @@ import path from 'path';
 import { Direction, Elf, MaybeElf } from './types';
 import {
   findNewPosition,
+  getBoundingRectangle,
   parseInput,
   positionToString,
   renderPartialGrid,
@@ -11,13 +12,15 @@ import {
   updateDirectionsToConsider,
 } from './utils';
 
-const file = './files/example.txt';
-//const file = './files/input.txt';
+//const file = './files/example.txt';
+const file = './files/input.txt';
 
 const start = async () => {
   const content = fs.readFileSync(path.join(__dirname, file), 'utf8');
 
   const [grid, elves] = parseInput(content);
+
+  renderPartialGrid(grid, getBoundingRectangle(elves));
 
   const directionsToConsider: Direction[] = ['N', 'S', 'W', 'E'];
 
@@ -59,28 +62,18 @@ const start = async () => {
     // Finally, rotate directions
     updateDirectionsToConsider(directionsToConsider);
 
-    // Find bounding rectangle
-    let minX = elves[0].x,
-      maxX = elves[0].x,
-      minY = elves[0].y,
-      maxY = elves[0].y;
-
-    for (const elf of elves) {
-      minX = Math.min(minX, elf.x);
-      maxX = Math.max(maxX, elf.x);
-      minY = Math.min(minY, elf.y);
-      maxY = Math.max(maxY, elf.y);
-    }
-
-    // const rectangleSize = (maxX - minX) * (maxY - minY);
-    // console.log(rectangleSize);
-
-    renderPartialGrid(grid, minX, maxX, minY, maxY);
+    const bounds = getBoundingRectangle(elves);
+    renderPartialGrid(grid, bounds);
     console.log();
-
-    // const emptyTiles = rectangleSize - elves.length;
-    // console.log(emptyTiles);
   }
+
+  const bounds = getBoundingRectangle(elves);
+  const rectangleSize =
+    (bounds.maxX - bounds.minX + 1) * (bounds.maxY - bounds.minY + 1);
+  console.log(rectangleSize);
+
+  const emptyTiles = rectangleSize - elves.length;
+  console.log(emptyTiles);
 
   //  console.log(elves);
 };

@@ -1,6 +1,6 @@
 import { Grid, Position } from '@utils/grid';
 import { EOL } from 'os';
-import { Direction, Elf, MaybeElf } from './types';
+import { Bounds, Direction, Elf, MaybeElf } from './types';
 
 export const parseInput = (input: string): [Grid<MaybeElf>, Elf[]] => {
   const gridPositions = input.split(EOL).map((line) => line.split(''));
@@ -15,9 +15,11 @@ export const parseInput = (input: string): [Grid<MaybeElf>, Elf[]] => {
   // Much quicker to initialize by entering elves due to the buffer.
   for (let y = 0; y < gridPositions.length; y++)
     for (let x = 0; x < gridPositions[y].length; x++) {
-      const elf = { x: x + gridBuffer, y: y + gridBuffer };
-      grid.set(elf, elf);
-      elves.push(elf);
+      if (gridPositions[y][x] === '#') {
+        const elf = { x: x + gridBuffer, y: y + gridBuffer };
+        grid.set(elf, elf);
+        elves.push(elf);
+      }
     }
 
   return [grid, elves];
@@ -84,10 +86,7 @@ export const findNewPosition = (
 
 export const renderPartialGrid = (
   grid: Grid<MaybeElf>,
-  minX: number,
-  maxX: number,
-  minY: number,
-  maxY: number
+  { minX, maxX, minY, maxY }: Bounds
 ) => {
   for (let y = minY; y <= maxY; y++) {
     for (let x = minX; x <= maxX; x++) {
@@ -95,4 +94,21 @@ export const renderPartialGrid = (
     }
     console.log();
   }
+};
+
+export const getBoundingRectangle = (elves: Elf[]): Bounds => {
+  // Find bounding rectangle
+  let minX = elves[0].x,
+    maxX = elves[0].x,
+    minY = elves[0].y,
+    maxY = elves[0].y;
+
+  for (const elf of elves) {
+    minX = Math.min(minX, elf.x);
+    maxX = Math.max(maxX, elf.x);
+    minY = Math.min(minY, elf.y);
+    maxY = Math.max(maxY, elf.y);
+  }
+
+  return { minX, maxX, minY, maxY };
 };
