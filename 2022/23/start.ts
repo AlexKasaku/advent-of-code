@@ -24,9 +24,12 @@ const start = async () => {
 
   const directionsToConsider: Direction[] = ['N', 'S', 'W', 'E'];
 
-  let rounds = 10;
-  while (rounds--) {
+  let rounds = 0;
+  while (true) {
+    rounds++;
+
     const movementMap = new Map<string, Elf[]>();
+    let elfMoved: boolean = false;
 
     // For each elf, determine if it will try to move
     for (const elf of elves) {
@@ -57,14 +60,22 @@ const start = async () => {
         elf.x = newPosition.x;
         elf.y = newPosition.y;
         grid.set(elf, elf);
+
+        elfMoved = true;
       });
 
     // Finally, rotate directions
     updateDirectionsToConsider(directionsToConsider);
 
-    const bounds = getBoundingRectangle(elves);
-    renderPartialGrid(grid, bounds);
-    console.log();
+    if (!elfMoved) {
+      // We're done!
+      console.log(`Finished in round ${rounds}`);
+      return;
+    }
+
+    // const bounds = getBoundingRectangle(elves);
+    // renderPartialGrid(grid, bounds);
+    // console.log();
   }
 
   const bounds = getBoundingRectangle(elves);
