@@ -1,13 +1,8 @@
 import range from '@utils/range';
 import fs from 'fs';
 import path from 'path';
-import {
-  buildAllGridStates,
-  buildGridFromState,
-  getBlizzardsAtStep,
-  parseInput,
-  renderGrid,
-} from './utils';
+import { buildAllGridStates } from './utils';
+import { parseInput } from './utils.parse';
 
 //const file = './files/example.txt';
 const file = './files/example.2.txt';
