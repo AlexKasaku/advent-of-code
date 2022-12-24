@@ -13,6 +13,7 @@ export type Space = Position & {
   end: boolean;
   wall: boolean;
   blizzards: Blizzard[];
+  distanceToEnd: number;
 };
 
 export type InitialSetup = {
@@ -21,4 +22,11 @@ export type InitialSetup = {
   start: Position;
   end: Position;
   blizzards: Blizzard[];
+};
+
+export type State = {
+  time: number; // From this can calculate blizzard positions,
+  stepsTaken: number;
+  distanceToEnd: number;
+  position: Position;
 };

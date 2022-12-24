@@ -1,3 +1,6 @@
+import { EOL } from 'os';
+import { InitialSetup, Blizzard } from './types';
+
 export const parseInput = (input: string): InitialSetup => {
   const gridContent = input.split(EOL).map((line) => line.split(''));
 

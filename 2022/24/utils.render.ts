@@ -1,3 +1,6 @@
+import { Grid } from '@utils/grid';
+import { Space } from './types';
+
 const getRenderChar = (space: Space): string => {
   if (space.start || space.end) return '.';
   if (space.wall) return '#';

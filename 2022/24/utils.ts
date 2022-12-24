@@ -18,6 +18,7 @@ export const buildGridFromState = (
       wall: false,
       start: false,
       end: false,
+      distanceToEnd: manhattanDistance({ x, y }, end),
     };
     if (x == 0 || x == width - 1 || y == 0 || y == height - 1)
       space.wall = true;
@@ -87,6 +88,7 @@ export const getBlizzardsAtStep = (
     }
   });
 };
+
 export const buildAllGridStates = (setup: InitialSetup, uniqueStates: number) =>
   range(0, uniqueStates - 1).map((i) =>
     buildGridFromState(
