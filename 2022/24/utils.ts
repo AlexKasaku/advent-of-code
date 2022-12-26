@@ -100,5 +100,22 @@ export const buildAllGridStates = (setup: InitialSetup, uniqueStates: number) =>
     )
   );
 
+const gridStates = new Map<number, Grid<Space>>();
+export const getGridState = (setup: InitialSetup, step: number) => {
+  if (!gridStates.has(step))
+    gridStates.set(
+      step,
+      buildGridFromState(
+        setup.width,
+        setup.height,
+        setup.start,
+        setup.end,
+        getBlizzardsAtStep(setup.width, setup.height, setup.blizzards, step)
+      )
+    );
+
+  return gridStates.get(step)!;
+};
+
 export const manhattanDistance = (a: Position, b: Position) =>
   Math.abs(a.x - b.x) + Math.abs(a.y - b.y);

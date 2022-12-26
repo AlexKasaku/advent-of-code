@@ -25,8 +25,8 @@ export type InitialSetup = {
 };
 
 export type State = {
-  time: number; // From this can calculate blizzard positions,
-  stepsTaken: number;
+  stepsTaken: number; // From this can calculate blizzard positions,
   distanceToEnd: number;
   position: Position;
+  destinationsRemaining: Position[];
 };
