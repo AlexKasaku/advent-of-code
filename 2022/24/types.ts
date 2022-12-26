@@ -26,7 +26,5 @@ export type InitialSetup = {
 
 export type State = {
   stepsTaken: number; // From this can calculate blizzard positions,
-  distanceToEnd: number;
   position: Position;
-  destinationsRemaining: Position[];
 };
