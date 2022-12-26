@@ -1,12 +1,9 @@
 import { Position } from '@utils/grid';
-import range from '@utils/range';
 import fs from 'fs';
-import { endianness } from 'os';
 import path from 'path';
 import { State } from './types';
-import { buildAllGridStates, getGridState, manhattanDistance } from './utils';
+import { getGridState, manhattanDistance } from './utils';
 import { parseInput } from './utils.parse';
-import { renderGrid } from './utils.render';
 
 //const file = './files/example.txt';
 //const file = './files/example.2.txt';
@@ -26,13 +23,6 @@ const start = async () => {
   const setup = parseInput(content);
   const uniqueStates = (setup.width - 2) * (setup.height - 2);
 
-  console.log('Parsed input, building states');
-
-  // Blizzard states loop, so precalculate all states!
-  //const gridStates = buildAllGridStates(setup, uniqueStates);
-
-  console.log('Built states');
-
   // Now, let's solve it (eep).
   let states: State[] = [
     {
@@ -43,7 +33,6 @@ const start = async () => {
     },
   ];
 
-  let stepsToEnd = Infinity;
   let iterations = 0;
 
   console.log('Starting iterations');
@@ -57,11 +46,6 @@ const start = async () => {
 
   while (states.length > 0) {
     iterations++;
-    if (iterations % 100000 == 0)
-      console.log(
-        `Processed ${iterations} iterations. Current state queue: ${states.length}`
-      );
-
     const currentState = states.shift()!;
 
     // Get grid state for next step. We need next move because that's where the blizzards will *BE*.
@@ -69,10 +53,6 @@ const start = async () => {
       setup,
       (currentState.stepsTaken + 1) % uniqueStates
     );
-
-    // If ever we've taken more steps than the current shortest route, just skip. Add 1 on because each state
-    // is always 1 step away from the end
-    if (currentState.stepsTaken + 1 >= stepsToEnd) continue;
 
     const currentDestination = currentState.destinationsRemaining[0];
 
@@ -82,36 +62,29 @@ const start = async () => {
       if (currentState.destinationsRemaining.length == 1) {
         const stepsTakenToReachEnd = currentState.stepsTaken + 1;
 
-        if (stepsTakenToReachEnd < stepsToEnd) {
-          console.log(iterations);
-          console.log(
-            'New shortest distance to end of ' + stepsTakenToReachEnd
-          );
-          stepsToEnd = stepsTakenToReachEnd;
-        } else {
-          // Is this now unreachable because we'll prune before this point?
-          console.log(
-            'Reached the end but in an equal or higher time of ' +
-              stepsTakenToReachEnd
-          );
-        }
+        console.log('Shortest distance to end: ' + stepsTakenToReachEnd);
+        console.log(`Processed ${iterations} iterations.`);
+        break;
       } else {
         // Still got more legs to go! Add the next state for this destination.
         const destination = currentState.destinationsRemaining.shift()!;
 
         console.log(
-          `Reached a destination on step ${currentState.stepsTaken + 1}`
+          `Reached current destination on step: ${currentState.stepsTaken + 1}`
         );
-        states = [];
-        states.unshift({
-          stepsTaken: currentState.stepsTaken + 1,
-          distanceToEnd: manhattanDistance(
-            destination,
-            currentState.destinationsRemaining[0]
-          ),
-          position: destination,
-          destinationsRemaining: [...currentState.destinationsRemaining],
-        });
+
+        // Reset the state queue
+        states = [
+          {
+            stepsTaken: currentState.stepsTaken + 1,
+            distanceToEnd: manhattanDistance(
+              destination,
+              currentState.destinationsRemaining[0]
+            ),
+            position: destination,
+            destinationsRemaining: [...currentState.destinationsRemaining],
+          },
+        ];
       }
     } else {
       // Create next move from all neghbours we can move to and add to queue. Find all neighbouring
@@ -166,18 +139,6 @@ const start = async () => {
           states.push(nextState);
         }
       }
-
-      // Maintain queue where moves that are closest to the end are at the front and then by lowest
-      // step count
-      states.sort((a, b) =>
-        a.stepsTaken < b.stepsTaken
-          ? -1
-          : a.stepsTaken == b.stepsTaken
-          ? a.distanceToEnd < b.distanceToEnd
-            ? -1
-            : 1
-          : 1
-      );
     }
   }
 };
