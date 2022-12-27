@@ -1,1 +1,1 @@
-export type InsertionMap = Map<string, string>;
+export type InsertionMap = Map<string, string[]>;
