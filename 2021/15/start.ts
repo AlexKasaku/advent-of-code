@@ -15,27 +15,32 @@ const updatePosition = (position: Space, distance: number): void => {
 
 const updateNeighbours = (
   grid: Grid<Space>,
-  { x, y, distance, value }: Space
+  { x, y, distance, value }: Space,
+  unvisited: Set<Space>
 ): void => {
   // Find each position that is reachable and unvisited
   if (x > 0) {
     const candidate = grid.Values[y][x - 1]!;
 
+    if (!candidate.visited) unvisited.add(candidate);
     updatePosition(candidate, distance + candidate.value);
   }
   if (x < grid.Values[y].length - 1) {
     const candidate = grid.Values[y][x + 1]!;
 
+    if (!candidate.visited) unvisited.add(candidate);
     updatePosition(candidate, distance + candidate.value);
   }
   if (y > 0) {
     const candidate = grid.Values[y - 1][x]!;
 
+    if (!candidate.visited) unvisited.add(candidate);
     updatePosition(candidate, distance + candidate.value);
   }
   if (y < grid.Values.length - 1) {
     const candidate = grid.Values[y + 1][x]!;
 
+    if (!candidate.visited) unvisited.add(candidate);
     updatePosition(candidate, distance + candidate.value);
   }
 };
@@ -46,12 +51,13 @@ const start = async () => {
   const grid = parseInputPart2(content);
   grid.Values[0][0].distance = 0;
 
-  const unvisited = new Set<Space>(grid.Values.flat());
+  // Set of unvisited positions, just start with start position.
+  const unvisited = new Set<Space>([grid.Values[0][0]]);
 
   let iterations = 0;
   while (true) {
     iterations++;
-    if (iterations % 1000 == 0) console.log(unvisited.size);
+    //if (iterations % 10000 == 0) console.log(unvisited.size);
 
     const candidate = [...unvisited.values()]
       .sort((a, b) => a.distance - b.distance)
@@ -65,7 +71,7 @@ const start = async () => {
     }
 
     // Update neighbours
-    updateNeighbours(grid, candidate);
+    updateNeighbours(grid, candidate, unvisited);
 
     // Mark candidate as visited
     candidate.visited = true;
