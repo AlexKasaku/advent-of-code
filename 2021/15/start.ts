@@ -2,7 +2,7 @@ import { Grid } from '@utils/grid';
 import fs from 'fs';
 import path from 'path';
 import { Space } from './types';
-import { parseInput } from './utils';
+import { parseInput, parseInputPart2 } from './utils';
 
 //const file = './files/example.txt';
 const file = './files/input.txt';
@@ -43,15 +43,17 @@ const updateNeighbours = (
 const start = async () => {
   const content = fs.readFileSync(path.join(__dirname, file), 'utf8');
 
-  const grid = parseInput(content);
+  const grid = parseInputPart2(content);
   grid.Values[0][0].distance = 0;
+
+  const unvisited = new Set<Space>(grid.Values.flat());
 
   let iterations = 0;
   while (true) {
     iterations++;
+    if (iterations % 1000 == 0) console.log(unvisited.size);
 
-    const candidate = grid.Values.flat()
-      .filter((x) => !x.visited)
+    const candidate = [...unvisited.values()]
       .sort((a, b) => a.distance - b.distance)
       .shift();
 
@@ -67,17 +69,13 @@ const start = async () => {
 
     // Mark candidate as visited
     candidate.visited = true;
-
-    //     // If current total > smallestCost, don't bother continuing.
-    //     if (state.total >= smallestCost) continue;
+    unvisited.delete(candidate);
 
     if (candidate.x == grid.Width - 1 && candidate.y == grid.Height - 1) {
       // Reached end
       console.log(candidate);
       break;
     }
-
-    // ;
   }
 };
 
