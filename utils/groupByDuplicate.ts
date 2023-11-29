@@ -2,7 +2,11 @@ import isEqual from 'lodash/isEqual';
 
 type EqualityComparer<T> = (value: T, other: T) => boolean;
 
-// Note that by defaul this uses the isEqual from lodash to determine equality, which can impact performance.
+/**
+ * A reduction function generator (use with .reduce()) to group equal elements in an array together
+ * @param equalityComparer A function for comparing equality of two elements. If not provided, by default this uses isEqual from lodash to determine equality, which can impact performance.
+ * @returns A reduction function for performing the reduce
+ */
 const groupByDuplicate =
   <T>(equalityComparer: EqualityComparer<T> = isEqual) =>
   (acc: T[][], item: T, index: number) => {

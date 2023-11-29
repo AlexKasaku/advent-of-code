@@ -1,3 +1,8 @@
+/**
+ * Creates an n-dimensional array with undefined values
+ * @param sizes Dimensions of array to return
+ * @returns Array
+ */
 export const createArray = (...sizes: number[]) => {
   const arr = new Array(sizes[0] || 0);
   let i = arr.length;
@@ -9,6 +14,12 @@ export const createArray = (...sizes: number[]) => {
   return arr;
 };
 
+/**
+ * Creates an n-dimensional array with callback for initializing each value
+ * @param initCallback Callback to provide initial value for array at given index
+ * @param sizes Dimensions of array to return
+ * @returns Array
+ */
 export const createAndInitArray = <T>(
   initCallback: (...indexes: number[]) => T,
   ...sizes: number[]
