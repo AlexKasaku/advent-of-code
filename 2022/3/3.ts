@@ -1,3 +1,4 @@
+import { alphaLowerAndUpper } from '@utils/alpha';
 import fs from 'fs';
 import { EOL } from 'os';
 import path from 'path';
@@ -5,10 +6,7 @@ import path from 'path';
 //const file = '3.example.txt';
 const file = '3.input.txt';
 
-const priority = (item: string) =>
-  'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'
-    .split('')
-    .indexOf(item) + 1;
+const priority = (item: string) => [...alphaLowerAndUpper].indexOf(item) + 1;
 
 const findDuplicate = (line: string) => {
   const half1 = line.substring(0, line.length / 2);
