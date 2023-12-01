@@ -7,9 +7,7 @@ import { parseInput, parseInputPart2 } from './utils';
 //const file = './files/example.txt';
 const file = './files/input.txt';
 
-const updatePosition = (position: Space, distance: number): void => {
-  if (position.visited) return;
-
+const updatePositionIfShorter = (position: Space, distance: number): void => {
   if (distance < position.distance) position.distance = distance;
 };
 
@@ -23,26 +21,42 @@ const updateNeighbours = (
     const candidate = grid.Values[y][x - 1]!;
 
     if (!candidate.visited) unvisited.add(candidate);
-    updatePosition(candidate, distance + candidate.value);
+    updatePositionIfShorter(candidate, distance + candidate.value);
   }
   if (x < grid.Values[y].length - 1) {
     const candidate = grid.Values[y][x + 1]!;
 
     if (!candidate.visited) unvisited.add(candidate);
-    updatePosition(candidate, distance + candidate.value);
+    updatePositionIfShorter(candidate, distance + candidate.value);
   }
   if (y > 0) {
     const candidate = grid.Values[y - 1][x]!;
 
     if (!candidate.visited) unvisited.add(candidate);
-    updatePosition(candidate, distance + candidate.value);
+    updatePositionIfShorter(candidate, distance + candidate.value);
   }
   if (y < grid.Values.length - 1) {
     const candidate = grid.Values[y + 1][x]!;
 
     if (!candidate.visited) unvisited.add(candidate);
-    updatePosition(candidate, distance + candidate.value);
+    updatePositionIfShorter(candidate, distance + candidate.value);
   }
+};
+
+const findShortestDistance = (candidates: Set<Space>) => {
+  const candidateArray = [...candidates.values()];
+
+  let shortestDistance = Number.MAX_SAFE_INTEGER;
+  var shortestDistanceIndex = -1;
+
+  for (let i = 0; i < candidateArray.length; i++) {
+    if (candidateArray[i].distance < shortestDistance) {
+      shortestDistance = candidateArray[i].distance;
+      shortestDistanceIndex = i;
+    }
+  }
+
+  return candidateArray[shortestDistanceIndex];
 };
 
 const start = async () => {
@@ -59,9 +73,7 @@ const start = async () => {
     iterations++;
     //if (iterations % 10000 == 0) console.log(unvisited.size);
 
-    const candidate = [...unvisited.values()]
-      .sort((a, b) => a.distance - b.distance)
-      .shift();
+    const candidate = findShortestDistance(unvisited);
 
     // No grid spaces left to check if there isn't one remaining or "closest" is still at Infinity (unreachable). Need
     // to check this also to account for blocked off areas.
