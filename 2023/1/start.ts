@@ -7,25 +7,24 @@ const debugMode = true;
 const debug = (...params: any[]) => debugMode && console.log(...params);
 const log = (...params: any[]) => console.log(...params);
 
+const words = [
+  'one',
+  'two',
+  'three',
+  'four',
+  'five',
+  'six',
+  'seven',
+  'eight',
+  'nine',
+];
+
 // Part 1
 //const regex = new RegExp(/(?=(\d))/g);
 
 // Part 2
-const regex = new RegExp(
-  /(?=(\d|one|two|three|four|five|six|seven|eight|nine))/g
-);
-
-const words = [
-  { word: 'one', value: 1 },
-  { word: 'two', value: 2 },
-  { word: 'three', value: 3 },
-  { word: 'four', value: 4 },
-  { word: 'five', value: 5 },
-  { word: 'six', value: 6 },
-  { word: 'seven', value: 7 },
-  { word: 'eight', value: 8 },
-  { word: 'nine', value: 9 },
-];
+const pattern = `(?=(\\d|${words.join('|')}))`;
+const regex = new RegExp(pattern, 'g');
 
 const asValue = (input: string) => {
   // Is it already a digit
@@ -33,7 +32,7 @@ const asValue = (input: string) => {
   if (value) return value;
 
   // Otherwise must be a word
-  return words.find((w) => w.word == input)?.value ?? 0;
+  return words.indexOf(input) + 1;
 };
 
 const convertToDigits = (line: string) => {
