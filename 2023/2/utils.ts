@@ -19,8 +19,8 @@ export const parseInput = (input: string): GameSetup[] => {
       const cubeParts = round.trim().split(',');
       const roundInfo: GameRound = { red: 0, green: 0, blue: 0 };
 
-      cubeParts.forEach((cubeData) => {
-        // We need to determine colour and number
+      for (const cubeData of cubeParts) {
+        // We need to determine colour and number, the order is not guaranteed each round.
         const cubeDataEntry = cubeData.trim().split(' ');
         const value = parseInt(cubeDataEntry[0]);
 
@@ -35,7 +35,7 @@ export const parseInput = (input: string): GameSetup[] => {
             roundInfo.green = value;
             break;
         }
-      });
+      }
 
       return roundInfo;
     });
