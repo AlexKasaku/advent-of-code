@@ -9,7 +9,9 @@ export const parseInput = (input: string): Grid<EngineSpace> => {
     const space: EngineSpace = {
       x,
       y,
-      adjacent: false,
+      adjacentToSymbol: false,
+      adjacentGears: [],
+      adjacentNumbersToThisGear: [],
       value: parseInt(values[y][x]),
     };
     if (Number.isNaN(space.value)) space.value = undefined;
