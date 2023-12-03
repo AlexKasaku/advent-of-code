@@ -35,6 +35,20 @@ const start = async (file: string) => {
     let isAdjacent = false;
     let adjacentGears: Set<EngineSpace> = new Set<EngineSpace>();
 
+    const processCurrentNumber = () => {
+      // Can reference above thanks to closure
+      const number = parseInt(currentNumber);
+
+      if (isAdjacent) {
+        // Finished a number and no digit was adjacent
+        debug(`Found part: ${number}`);
+        partNumbersTotal += number;
+      }
+
+      for (const gear of adjacentGears)
+        gear.adjacentNumbersToThisGear.push(number);
+    };
+
     for (let x = 0; x < engine.Width; x++) {
       const space = engine.Values[y][x];
 
@@ -45,16 +59,7 @@ const start = async (file: string) => {
       } else {
         if (currentNumber != '') {
           // Finished a number
-          const number = parseInt(currentNumber);
-
-          if (isAdjacent) {
-            // Finished a number and no digit was adjacent
-            log(`Found part: ${number}`);
-            partNumbersTotal += number;
-          }
-
-          for (const gear of adjacentGears)
-            gear.adjacentNumbersToThisGear.push(number);
+          processCurrentNumber();
         }
         currentNumber = '';
 
@@ -66,16 +71,7 @@ const start = async (file: string) => {
     // Check numbers at end of row too
     if (currentNumber != '') {
       // Finished a number
-      const number = parseInt(currentNumber);
-
-      if (isAdjacent) {
-        // Finished a number and no digit was adjacent
-        log(`Found part: ${number}`);
-        partNumbersTotal += number;
-      }
-
-      for (const gear of adjacentGears)
-        gear.adjacentNumbersToThisGear.push(number);
+      processCurrentNumber();
     }
   }
 
@@ -99,5 +95,3 @@ const start = async (file: string) => {
 //start('./files/example.txt');
 start('./files/input.txt');
 //start('./files/test.txt');
-
-// Last test: 443169
