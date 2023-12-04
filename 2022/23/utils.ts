@@ -1,3 +1,4 @@
+/* eslint-disable no-fallthrough */
 import { Grid, Position } from '@utils/grid';
 import { EOL } from 'os';
 import { Bounds, Direction, Elf, MaybeElf } from './types';
@@ -9,7 +10,7 @@ export const parseInput = (input: string): [Grid<MaybeElf>, Elf[]] => {
   const elves: Elf[] = [];
   const grid: Grid<MaybeElf> = new Grid<MaybeElf>(
     gridPositions.length + 2 * gridBuffer,
-    gridPositions[0].length + 2 * gridBuffer
+    gridPositions[0].length + 2 * gridBuffer,
   );
 
   // Much quicker to initialize by entering elves due to the buffer.
@@ -26,7 +27,7 @@ export const parseInput = (input: string): [Grid<MaybeElf>, Elf[]] => {
 };
 
 export const updateDirectionsToConsider = (
-  directionsToConsider: Direction[]
+  directionsToConsider: Direction[],
 ) => {
   // Rotate directions
   directionsToConsider.push(directionsToConsider.shift()!);
@@ -41,7 +42,7 @@ export const stringToPosition = (val: string): Position => {
 export const findNewPosition = (
   grid: Grid<MaybeElf>,
   { x, y }: Elf,
-  directionsToConsider: Direction[]
+  directionsToConsider: Direction[],
 ): Position | undefined => {
   for (const direction of directionsToConsider) {
     switch (direction) {
@@ -86,7 +87,7 @@ export const findNewPosition = (
 
 export const renderPartialGrid = (
   grid: Grid<MaybeElf>,
-  { minX, maxX, minY, maxY }: Bounds
+  { minX, maxX, minY, maxY }: Bounds,
 ) => {
   for (let y = minY; y <= maxY; y++) {
     for (let x = minX; x <= maxX; x++) {

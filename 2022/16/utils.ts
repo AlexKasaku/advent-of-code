@@ -27,7 +27,7 @@ export const optimizeRouteMap = (routeMap: RouteMap, rooms: RoomMap) => {
 
   // We want to find all 0 rooms, remove them from the route map and join up routes either side with an increased cost.
   for (const zeroRoom of [...rooms.values()].filter(
-    (r) => r.flowRate === 0 && r.name != 'AA'
+    (r) => r.flowRate === 0 && r.name != 'AA',
   )) {
     // Get all the routes for this room
     const routes = routeMap.get(zeroRoom.name);
@@ -54,7 +54,7 @@ export const optimizeRouteMap = (routeMap: RouteMap, rooms: RoomMap) => {
       // are more efficent than existing routes
       for (const routeToAdd of routesToAdd) {
         const existingRoute = destinationRoomRoutes.find(
-          (r) => r.toRoomName == routeToAdd.toRoomName
+          (r) => r.toRoomName == routeToAdd.toRoomName,
         );
 
         if (!existingRoute) destinationRoomRoutes.push(routeToAdd);
@@ -65,7 +65,7 @@ export const optimizeRouteMap = (routeMap: RouteMap, rooms: RoomMap) => {
       // And remove the route from there to the zero room
       findAndRemove(
         destinationRoomRoutes,
-        (r) => r.toRoomName == zeroRoom.name
+        (r) => r.toRoomName == zeroRoom.name,
       );
     }
 
@@ -100,7 +100,7 @@ export const collapseAllRoutes = (routeMap: RouteMap, rooms: RoomMap) => {
       // are more efficent than existing routes
       for (const routeToAdd of routesToAdd) {
         const existingRoute = destinationRoomRoutes.find(
-          (r) => r.toRoomName == routeToAdd.toRoomName
+          (r) => r.toRoomName == routeToAdd.toRoomName,
         );
 
         if (!existingRoute) destinationRoomRoutes.push(routeToAdd);

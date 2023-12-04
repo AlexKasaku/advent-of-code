@@ -13,7 +13,7 @@ const determineMostCommonBits = (lines: string[]) =>
       });
       return array;
     },
-    lines[0].split('').map((x) => 0)
+    lines[0].split('').map((x) => 0),
   );
 
 const calculate = (candidates: string[], oxygen: boolean) => {
@@ -23,7 +23,7 @@ const calculate = (candidates: string[], oxygen: boolean) => {
     const filterValue = finalValue[bitIndex] < 0 ? '0' : '1';
 
     candidates = candidates.filter(
-      (x) => (x[bitIndex] === filterValue) === oxygen
+      (x) => (x[bitIndex] === filterValue) === oxygen,
     );
     bitIndex++;
   }

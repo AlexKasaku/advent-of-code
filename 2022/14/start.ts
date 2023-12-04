@@ -28,7 +28,7 @@ const start = async () => {
 
   let sandAtRest = 0;
 
-  var startTime = performance.now();
+  const startTime = performance.now();
 
   for (; cycle < maxCycles; cycle++) {
     //renderGrid(grid);
@@ -41,10 +41,10 @@ const start = async () => {
         // Finished!
         //renderGrid(grid);
         console.log(
-          `Sand off grid! Total sand at rest: ${sandAtRest} (took ${cycle} cycles)`
+          `Sand off grid! Total sand at rest: ${sandAtRest} (took ${cycle} cycles)`,
         );
         console.log(
-          `Execution took ${performance.now() - startTime} milliseconds`
+          `Execution took ${performance.now() - startTime} milliseconds`,
         );
         return;
 
@@ -57,10 +57,10 @@ const start = async () => {
         if (sandInMotion.x === 500 && sandInMotion.y === 0) {
           //renderGrid(grid);
           console.log(
-            `Sand reached spawn point! Total sand at rest: ${sandAtRest} (took ${cycle} cycles)`
+            `Sand reached spawn point! Total sand at rest: ${sandAtRest} (took ${cycle} cycles)`,
           );
           console.log(
-            `Execution took ${performance.now() - startTime} milliseconds`
+            `Execution took ${performance.now() - startTime} milliseconds`,
           );
 
           return;

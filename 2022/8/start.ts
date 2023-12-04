@@ -19,7 +19,7 @@ const parseTrees = (input: string): Tree[][] =>
     .map((line) =>
       line
         .split('')
-        .map((t) => ({ height: parseInt(t), visible: false, score: 1 }))
+        .map((t) => ({ height: parseInt(t), visible: false, score: 1 })),
     );
 
 const updateRow = (trees: Tree[]): void => {
@@ -36,7 +36,7 @@ const updateRow = (trees: Tree[]): void => {
     if (adjacentTrees.length == 0) trees[column].score = 0;
     else {
       const index = adjacentTrees.findIndex(
-        (t) => t.height >= trees[column].height
+        (t) => t.height >= trees[column].height,
       );
       trees[column].score *= index == -1 ? adjacentTrees.length : index + 1;
     }
@@ -70,7 +70,7 @@ const start = async () => {
 
   // Part 1
   const totalVisible = trees.flatMap((row) =>
-    row.filter((t) => t.visible)
+    row.filter((t) => t.visible),
   ).length;
 
   console.log(totalVisible);

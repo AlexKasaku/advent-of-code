@@ -32,7 +32,7 @@ export const parseFolds = (input: string) =>
 export const foldOn = (
   grid: boolean[][],
   xAxis: boolean,
-  position: number
+  position: number,
 ): boolean[][] => {
   if (xAxis) {
     const baseSegment = grid.map((row) => row.slice(0, position));

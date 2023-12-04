@@ -8,7 +8,7 @@ const debug = false;
 export const innerCompare = (
   left: List,
   right: List,
-  indent: number = 0
+  indent: number = 0,
 ): number => {
   debugPair(indent, left, right);
 
@@ -51,7 +51,7 @@ export const innerCompare = (
 const debugPair = (indent: number, left: List, right: List) => {
   debugIndentOutput(
     indent,
-    `${JSON.stringify(left)} vs ${JSON.stringify(right)}`
+    `${JSON.stringify(left)} vs ${JSON.stringify(right)}`,
   );
 };
 

@@ -32,7 +32,7 @@ const start = async () => {
 
       return position;
     },
-    { horizontal: 0, depth: 0 }
+    { horizontal: 0, depth: 0 },
   );
 
   console.log(position);

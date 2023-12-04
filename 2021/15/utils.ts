@@ -26,7 +26,7 @@ export const parseInputPart2 = (input: string): Grid<Space> => {
         visited: false,
         distance: Number.MAX_SAFE_INTEGER,
       };
-    }
+    },
   );
 };
 

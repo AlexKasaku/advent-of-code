@@ -17,7 +17,7 @@ const start = async () => {
     parsedInput.map((i) => [
       i.room.name,
       i.tunnelsTo.map((t) => ({ moveCost: 1, toRoomName: t })),
-    ])
+    ]),
   );
 
   console.log(rooms);
@@ -50,7 +50,7 @@ const start = async () => {
     // Create new set of rooms turned on so we have a separate object
     const turnedOnRoomsFromHere = new Map([...currentState.roomsTurnedOn]);
     let currentFlowRate = currentState.currentFlowRate;
-    let timeRemaining = {
+    const timeRemaining = {
       me: currentState.timeRemaining.me,
       elephant: currentState.timeRemaining.elephant,
     };
@@ -91,7 +91,7 @@ const start = async () => {
       currentState.room,
       timeRemaining,
       turnedOnRoomsFromHere,
-      routeMap
+      routeMap,
     );
     //console.log(remainingCombos);
 
@@ -122,8 +122,8 @@ const start = async () => {
           `Rooms: ${JSON.stringify([
             ...turnedOnRoomsFromHere.entries(),
           ])} time remaining: ${JSON.stringify(
-            timeRemaining
-          )}, flow rate: ${currentFlowRate}`
+            timeRemaining,
+          )}, flow rate: ${currentFlowRate}`,
         );
       }
     }
@@ -140,7 +140,7 @@ const findRemainingRoomCombos = (
   room: Combo<string | null>,
   timeRemaining: Combo<number>,
   roomsTurnedOn: Map<string, string>,
-  routeMap: RouteMap
+  routeMap: RouteMap,
 ) => {
   const routeMapFromMe = room.me != null ? routeMap.get(room.me)! : [];
   const routeMapFromElephant =
@@ -154,7 +154,7 @@ const findRemainingRoomCombos = (
       ? routeMapFromMe.filter(
           (route) =>
             !roomsTurnedOn.has(route.toRoomName) &&
-            timeRemaining.me >= route.moveCost + 2
+            timeRemaining.me >= route.moveCost + 2,
         )
       : [];
 
@@ -164,7 +164,7 @@ const findRemainingRoomCombos = (
       ? routeMapFromElephant.filter(
           (route) =>
             !roomsTurnedOn.has(route.toRoomName) &&
-            timeRemaining.elephant >= route.moveCost + 2
+            timeRemaining.elephant >= route.moveCost + 2,
         )
       : [];
 
@@ -194,7 +194,7 @@ const findRemainingRoomCombos = (
         roomOptionsElephant.map((elephantOption) => ({
           me: meOption,
           elephant: elephantOption,
-        }))
+        })),
       )
       .filter((combo) => combo.me.toRoomName != combo.elephant.toRoomName);
   }

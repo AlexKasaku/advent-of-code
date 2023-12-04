@@ -50,7 +50,7 @@ const stateToSetString = ({ resources, robots, timeRemaining }: State) =>
 
 export const calculateBestGeodeCount = (
   blueprint: Blueprint,
-  timeLimit: number
+  timeLimit: number,
 ) => {
   const stack: State[] = [
     {
@@ -64,7 +64,7 @@ export const calculateBestGeodeCount = (
   let highestGeodeCount = 0;
   let statesProcessed = 0;
 
-  let seenStates = new Set<string>();
+  const seenStates = new Set<string>();
 
   while (stack.length > 0) {
     statesProcessed++;
@@ -113,7 +113,7 @@ export const calculateBestGeodeCount = (
 const getPossibleStates = (
   currentState: State,
   blueprint: Blueprint,
-  highestGeodeCount: number
+  highestGeodeCount: number,
 ): State[] => {
   const states: State[] = [];
 
@@ -138,7 +138,7 @@ const getPossibleStates = (
     blueprint.oreRobot.ore,
     blueprint.clayRobot.ore,
     blueprint.obsidianRobot.ore,
-    blueprint.geodeRobot.ore
+    blueprint.geodeRobot.ore,
   );
   const maxClayRequirement = blueprint.obsidianRobot.clay;
   const maxObsidianRequirement = blueprint.geodeRobot.obsidian;

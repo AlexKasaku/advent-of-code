@@ -4,7 +4,7 @@ import { MonkeyInput } from './types';
 export const parseInput = (input: string): Map<string, MonkeyInput> => {
   const monkeys = input.split(EOL).map((line) => {
     const regex =
-      /(?<name>\w+): (((?<left>\w+) (?<op>[=+\-\/*]) (?<right>\w+))|(?<value>\d+))/g;
+      /(?<name>\w+): (((?<left>\w+) (?<op>[=+\-/*]) (?<right>\w+))|(?<value>\d+))/g;
 
     const match = regex.exec(line);
 

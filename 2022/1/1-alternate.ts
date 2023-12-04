@@ -12,7 +12,7 @@ const start = async () => {
     elf
       .split(EOL)
       .map((x) => parseInt(x))
-      .reduce(toSum)
+      .reduce(toSum),
   );
 
   const topThree = totals.sort(byDescending).slice(0, 3);

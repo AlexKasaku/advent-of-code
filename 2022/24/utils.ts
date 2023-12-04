@@ -8,7 +8,7 @@ export const buildGridFromState = (
   height: number,
   start: Position,
   end: Position,
-  blizzards: Blizzard[]
+  blizzards: Blizzard[],
 ): Grid<Space> => {
   const grid = new Grid<Space>(height, width, ({ x, y }) => {
     const space = {
@@ -40,7 +40,7 @@ export const getBlizzardsAtStep = (
   width: number,
   height: number,
   initialBlizzards: Blizzard[],
-  step: number
+  step: number,
 ): Blizzard[] => {
   const playWidth = width - 2;
   const playHeight = height - 2;
@@ -96,8 +96,8 @@ export const buildAllGridStates = (setup: InitialSetup, uniqueStates: number) =>
       setup.height,
       setup.start,
       setup.end,
-      getBlizzardsAtStep(setup.width, setup.height, setup.blizzards, i)
-    )
+      getBlizzardsAtStep(setup.width, setup.height, setup.blizzards, i),
+    ),
   );
 
 const gridStates = new Map<number, Grid<Space>>();
@@ -110,8 +110,8 @@ export const getGridState = (setup: InitialSetup, step: number) => {
         setup.height,
         setup.start,
         setup.end,
-        getBlizzardsAtStep(setup.width, setup.height, setup.blizzards, step)
-      )
+        getBlizzardsAtStep(setup.width, setup.height, setup.blizzards, step),
+      ),
     );
 
   return gridStates.get(step)!;

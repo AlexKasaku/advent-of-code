@@ -5,8 +5,8 @@ const expected = 46779208742730;
 let lowerX = 0;
 let upperX = 46779208742730;
 
-let resultLower = 0;
-let resultUpper = 0;
+const resultLower = 0;
+const resultUpper = 0;
 
 let i = 100;
 while (i--) {

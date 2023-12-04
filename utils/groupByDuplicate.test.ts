@@ -47,8 +47,8 @@ describe('groupByDuplicate', () => {
     expect(
       values.reduce(
         groupByDuplicate((a, b) => a.x == b.x || a.y == b.y),
-        [] as any
-      )
+        [] as Obj[][],
+      ),
     ).toEqual(expected);
   });
 });

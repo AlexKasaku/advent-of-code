@@ -30,7 +30,7 @@ const parseInput = (input: string) =>
       visited: false,
       distance: Number.MAX_SAFE_INTEGER,
       manhattanDistanceToEnd: 0,
-    }))
+    })),
   );
 
 const updatePosition = (position: Position, distance: number): void => {
@@ -39,14 +39,17 @@ const updatePosition = (position: Position, distance: number): void => {
   if (distance < position.distance) position.distance = distance;
 };
 
-const isReachable = (currentHeight: number, candidateHeight: number): boolean =>
+const isReachable = (
+  currentHeight: number,
+  candidateHeight: number,
+): boolean =>
   part1
     ? currentHeight >= candidateHeight - 1
     : currentHeight - 1 <= candidateHeight;
 
 const updateNeighbours = (
   grid: Grid,
-  { x, y, distance, height }: Position
+  { x, y, distance, height }: Position,
 ): void => {
   // Find each position that is reachable and unvisited
   if (x > 0) {
@@ -123,7 +126,7 @@ const start = async () => {
         (a, b) =>
           a.distance +
           a.manhattanDistanceToEnd -
-          (b.distance + b.manhattanDistanceToEnd)
+          (b.distance + b.manhattanDistanceToEnd),
       )
       .shift();
 

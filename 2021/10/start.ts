@@ -52,7 +52,7 @@ const start = async () => {
   const content = fs.readFileSync(path.join(__dirname, file), 'utf8');
 
   let corruptionScore = 0;
-  let autocompleteScores: number[] = [];
+  const autocompleteScores: number[] = [];
 
   content.split(EOL).forEach((line) => {
     const stack = [];
@@ -74,7 +74,7 @@ const start = async () => {
       autocompleteScores.push(
         stack
           .reverse()
-          .reduce((score, char) => score * 5 + getAutocompleteScore(char), 0)
+          .reduce((score, char) => score * 5 + getAutocompleteScore(char), 0),
       );
     }
   });
@@ -84,7 +84,7 @@ const start = async () => {
     'Autocomplete: ' +
       autocompleteScores.sort(byAscending)[
         Math.floor(autocompleteScores.length / 2)
-      ]
+      ],
   );
 };
 

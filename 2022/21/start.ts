@@ -64,7 +64,7 @@ const start = async () => {
     // Calculate
     const toEval = `${leftValue} ${node.operation} ${rightValue}`.replace(
       '=',
-      '=='
+      '==',
     );
 
     if (toEval.indexOf('x') > -1) {
@@ -75,7 +75,7 @@ const start = async () => {
       if (typeof leftValue === 'string') {
         // Left contains x
         solverOperations.push(
-          `x ${getReverseOperator(node.operation!)} ${rightValue}`
+          `x ${getReverseOperator(node.operation!)} ${rightValue}`,
         );
       } else {
         // Right contains x - requires more finesse
@@ -111,7 +111,7 @@ const start = async () => {
 
   while (solverOperations.length > 0) {
     finalValue = eval(
-      solverOperations.pop()!.replace('x', finalValue!.toString())
+      solverOperations.pop()!.replace('x', finalValue!.toString()),
     );
   }
 

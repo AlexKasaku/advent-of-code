@@ -66,7 +66,7 @@ const parseContent = (lines: string[]) => {
 const updateState = (
   state: Stack[],
   { value, from, to }: Move,
-  moveAsGroup: boolean = true
+  moveAsGroup: boolean = true,
 ) => {
   let toAdd: string[] = [];
   Array(value)
@@ -89,7 +89,9 @@ const getTopBoxState = (state: Stack[]) =>
 const start = async () => {
   const content = fs.readFileSync(path.join(__dirname, file), 'utf8');
 
-  let { state, moves } = parseContent(content.split(EOL));
+  const parsedContent = parseContent(content.split(EOL));
+  let { state } = parsedContent;
+  const { moves } = parsedContent;
 
   // False for Part 1, True for Part 2
   const moveAsGroup = false;

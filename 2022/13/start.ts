@@ -9,7 +9,7 @@ import { innerCompare } from './utils';
 const file = './files/input.txt';
 
 const parseList = (list: string): List => {
-  if (!list.match(/[\[,\]\d]+/)) throw 'Unsupported list structure';
+  if (!list.match(/[[,\]\d]+/)) throw 'Unsupported list structure';
 
   return eval(list);
 };

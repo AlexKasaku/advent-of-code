@@ -1,3 +1,4 @@
+/* eslint-disable no-fallthrough */
 import toSum from '@utils/toSum';
 import fs from 'fs';
 import { EOL } from 'os';
@@ -32,7 +33,7 @@ type Directory = {
 };
 
 const parseCommand = (
-  text: string
+  text: string,
 ): { command: Command; operator?: string } | undefined => {
   switch (text.trim().substring(0, 2)) {
     case 'ls':
@@ -106,18 +107,18 @@ const parseExecutions = (executions: Execution[]): Directory => {
             case 'dir':
               if (
                 !currentDirectory.directories.find(
-                  (d) => d.name === output.name
+                  (d) => d.name === output.name,
                 )
               )
                 currentDirectory.directories.push(
-                  createDirectory(output.name, currentDirectory)
+                  createDirectory(output.name, currentDirectory),
                 );
               break;
             case 'file':
               // output is file
               if (!currentDirectory.files.find((f) => f.name === output.name))
                 currentDirectory.files.push(
-                  createFile({ name: output.name, size: output.size })
+                  createFile({ name: output.name, size: output.size }),
                 );
           }
         });
@@ -137,7 +138,7 @@ const calculateAllSizes = (directory: Directory): void => {
 // Walk the tree, depth-first and return any directories that match the predicate.
 const deepFindAll = (
   directory: Directory,
-  predicate: (d: Directory) => boolean
+  predicate: (d: Directory) => boolean,
 ): Directory[] => [
   ...directory.directories.flatMap((d) => deepFindAll(d, predicate)),
   ...(predicate(directory) ? [directory] : []),
@@ -167,7 +168,7 @@ const start = async () => {
   // Part 2
   const matchesPart2 = deepFindAll(
     root,
-    (d) => freeSpace + (d.size ?? 0) >= desiredSize
+    (d) => freeSpace + (d.size ?? 0) >= desiredSize,
   );
 
   console.log(matchesPart2.map((d) => d.size ?? 0).sort((a, b) => a - b)[0]);

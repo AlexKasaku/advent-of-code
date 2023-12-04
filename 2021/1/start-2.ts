@@ -21,7 +21,7 @@ const start = async () => {
     .reduce(
       (total, current, index, array) =>
         total + (index > 0 ? (current > array[index - 1] ? 1 : 0) : 0),
-      0
+      0,
     );
 
   console.log(total);

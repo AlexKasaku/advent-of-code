@@ -18,7 +18,7 @@ describe('grid', () => {
       'returns correct neighbours for non-orthagonal',
       (position, expected) => {
         expect(grid.getNeighbours(position, false).sort()).toEqual(expected);
-      }
+      },
     );
 
     it.each([
@@ -68,7 +68,7 @@ describe('grid', () => {
       'returns correct partial segment of grid when partially off grid',
       (position, width, height, expected) => {
         expect(grid.getSegment(position, width, height)).toEqual(expected);
-      }
+      },
     );
   });
 

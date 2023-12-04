@@ -78,8 +78,8 @@ const start = async () => {
 
   debug(
     `Start: Head: ${pointToString(rope[0])}. Tail: ${pointToString(
-      rope[rope.length - 1]
-    )}. Visited: ${visitedPoints.size}`
+      rope[rope.length - 1],
+    )}. Visited: ${visitedPoints.size}`,
   );
 
   moves.forEach(({ direction, times }) => {
@@ -97,10 +97,10 @@ const start = async () => {
       // Debug log
       debug(
         `Head moved: ${direction}. Head: ${pointToString(
-          rope[0]
+          rope[0],
         )}. Tail: ${pointToString(rope[rope.length - 1])}. Visited: ${
           visitedPoints.size
-        }`
+        }`,
       );
 
       positionsOutput.push(JSON.parse(JSON.stringify(rope)));
@@ -110,7 +110,7 @@ const start = async () => {
   fs.writeFileSync(
     path.join(__dirname, 'output.json'),
     JSON.stringify(positionsOutput),
-    'utf8'
+    'utf8',
   );
 };
 

@@ -59,7 +59,7 @@ const getDisplayValue = (display: Display): number => {
   // 3 - length 5, contains 1's segments - 3 | 1 = 3
   digits[3] = findAndRemove(
     display.inputs,
-    (x) => x.length == 5 && stringsAreEqualSets(x + digits[1], x)
+    (x) => x.length == 5 && stringsAreEqualSets(x + digits[1], x),
   )[0];
 
   // 5 - Length 5 - 5 | (4 not in 1) = 5
@@ -67,7 +67,7 @@ const getDisplayValue = (display: Display): number => {
     display.inputs,
     (x) =>
       x.length == 5 &&
-      stringsAreEqualSets(stringDifference(digits[4], digits[1]) + x, x)
+      stringsAreEqualSets(stringDifference(digits[4], digits[1]) + x, x),
   )[0];
 
   // 2 - Length 5, remaining after 5 & 3 identified
@@ -77,13 +77,13 @@ const getDisplayValue = (display: Display): number => {
   digits[6] = findAndRemove(
     display.inputs,
     (x) =>
-      x.length == 6 && stringIntersect(digits[1], x).length < digits[1].length
+      x.length == 6 && stringIntersect(digits[1], x).length < digits[1].length,
   )[0];
 
   // 9 - length 6, contains 4's segments - 9 | 4 = 9
   digits[9] = findAndRemove(
     display.inputs,
-    (x) => x.length == 6 && stringsAreEqualSets(x + digits[4], x)
+    (x) => x.length == 6 && stringsAreEqualSets(x + digits[4], x),
   )[0];
 
   // 0 - last digit remaining
@@ -103,8 +103,8 @@ const getDisplayValue = (display: Display): number => {
   return parseInt(
     display.digits.reduce(
       (a, b) => a + digits.findIndex((digit) => stringsAreEqualSets(digit, b)),
-      ''
-    )
+      '',
+    ),
   );
 };
 

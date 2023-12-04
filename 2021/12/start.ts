@@ -39,7 +39,7 @@ const start = async () => {
             r !== 'start' &&
             (!state.visited.has(r) ||
               !state.visitedSmallCaveTwice ||
-              roomMap.get(r)!.big)
+              roomMap.get(r)!.big),
         )
         .map((room) => {
           const visitedSmallCaveTwice =

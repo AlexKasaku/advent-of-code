@@ -29,7 +29,7 @@ const start = async () => {
       y,
       height: parseInt(contentSplit[y][x]),
       lowPoint: false,
-    })
+    }),
   );
 
   // Find all low points and assign them a basin
@@ -43,7 +43,7 @@ const start = async () => {
 
   // Find all points belonging to basins
   for (let x = 0; x < basin; x++) {
-    let toVisit = [grid.Values.flat().find((p) => p.basin === x)];
+    const toVisit = [grid.Values.flat().find((p) => p.basin === x)];
 
     // Keep going until visit array is empty
     while (toVisit.length > 0) {
@@ -55,7 +55,7 @@ const start = async () => {
       toVisit.push(
         ...grid
           .getNeighbours(candidate)
-          .filter((x) => x.height < 9 && x.basin === undefined)
+          .filter((x) => x.height < 9 && x.basin === undefined),
       );
     }
   }
@@ -74,7 +74,7 @@ const start = async () => {
     basins
       .sort(byDescending)
       .slice(0, 3)
-      .reduce((a, b) => a * b)
+      .reduce((a, b) => a * b),
   );
   // Get total risk level
   // const totalRiskLevel = grid.Values.flat()

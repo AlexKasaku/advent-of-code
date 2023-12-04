@@ -69,7 +69,7 @@ export const moveOnGrid = (
   position: Position,
   facing: Direction,
   move: number,
-  wrapMap: Map<string, PositionAndFace>
+  wrapMap: Map<string, PositionAndFace>,
 ): PositionAndFace => {
   // Move indicated number of steps in a direction
   let newPosition = position;
@@ -97,14 +97,14 @@ export const moveOnGrid = (
     if (nextSpace?.content === 'void' || nextSpace?.content === undefined) {
       // Wrap around. Use the wrap map to find the next position and facing
       wrappedPosAndFace = wrapMap.get(
-        `${newPosition.x},${newPosition.y},${newFacing}`
+        `${newPosition.x},${newPosition.y},${newFacing}`,
       );
 
       if (!wrappedPosAndFace)
         throw `Needed to wrap but failed to find result in map. Position: ${newPosition.x},${newPosition.y}. Facing: ${newFacing}`;
 
       console.log(
-        `Wrapped from ${newPosition.x},${newPosition.y},${newFacing} to ${wrappedPosAndFace.position.x},${wrappedPosAndFace.position.y},${wrappedPosAndFace.facing}`
+        `Wrapped from ${newPosition.x},${newPosition.y},${newFacing} to ${wrappedPosAndFace.position.x},${wrappedPosAndFace.position.y},${wrappedPosAndFace.facing}`,
       );
 
       nextSpace = grid.get(wrappedPosAndFace.position);
@@ -160,7 +160,7 @@ export const renderGrid = (grid: Grid<Space>): void => {
 
 export const createWrapMapExample = (
   width: number,
-  height: number
+  height: number,
 ): Map<string, PositionAndFace> => {
   const wrapMap = new Map<string, PositionAndFace>();
 
@@ -241,7 +241,7 @@ export const createWrapMapExample = (
 
 export const createWrapMapReal = (
   width: number,
-  height: number
+  height: number,
 ): Map<string, PositionAndFace> => {
   const wrapMap = new Map<string, PositionAndFace>();
 

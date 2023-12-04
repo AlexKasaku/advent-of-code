@@ -36,7 +36,7 @@ const createListFromInput = (input: string, decryptionKey: number): Node[] => {
 const moveRight = (nodeToMove: Node, positions: number): void => {
   let nodeToMoveBefore = nodeToMove;
   for (let x = 0; x <= positions; x++)
-    nodeToMoveBefore = nodeToMoveBefore?.next!;
+    nodeToMoveBefore = nodeToMoveBefore.next!;
 
   // Lift out node by connecting ones either side of it
   nodeToMove.prev!.next = nodeToMove.next;
@@ -51,7 +51,7 @@ const moveRight = (nodeToMove: Node, positions: number): void => {
 
 const moveLeft = (nodeToMove: Node, positions: number): void => {
   let nodeToMoveAfter = nodeToMove;
-  for (let x = 0; x <= positions; x++) nodeToMoveAfter = nodeToMoveAfter?.prev!;
+  for (let x = 0; x <= positions; x++) nodeToMoveAfter = nodeToMoveAfter.prev!;
 
   // Lift out node by connecting ones either side of it
   nodeToMove.prev!.next = nodeToMove.next;
@@ -76,7 +76,7 @@ const logList = (zeroNode: Node) => {
 const start = async () => {
   const content = fs.readFileSync(path.join(__dirname, file), 'utf8');
 
-  var startTime = performance.now();
+  const startTime = performance.now();
 
   const nodeList = createListFromInput(content, 811589153);
   const zeroNode = nodeList.find((n) => n.value === 0);
@@ -127,7 +127,7 @@ const start = async () => {
   console.log(`Total: ${total}`);
 
   console.log(
-    `Execution took ${(performance.now() - startTime).toFixed(2)} milliseconds`
+    `Execution took ${(performance.now() - startTime).toFixed(2)} milliseconds`,
   );
 };
 

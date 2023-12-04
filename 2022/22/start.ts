@@ -41,7 +41,7 @@ const start = async () => {
   console.log('Height: ' + grid.Values.length);
 
   let currentPosition: Position = grid.Values[0].find(
-    (space) => space.content == 'open'
+    (space) => space.content == 'open',
   )!;
   let facing: Direction = 'R';
 
@@ -59,7 +59,7 @@ const start = async () => {
         currentPosition,
         facing,
         move,
-        wrapMap
+        wrapMap,
       );
 
       currentPosition = newPosition;

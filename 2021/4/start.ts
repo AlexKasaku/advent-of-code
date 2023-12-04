@@ -15,8 +15,8 @@ const readBoards = (lines: string[]): Board[] =>
       row
         .split(' ')
         .filter((x) => x)
-        .map((x) => x.trim())
-    )
+        .map((x) => x.trim()),
+    ),
   );
 
 const updateBoards = (boards: Board[], move: string) =>
@@ -24,7 +24,7 @@ const updateBoards = (boards: Board[], move: string) =>
     board.forEach((row, rowIndex) =>
       row.forEach((cell, cellIndex) => {
         if (cell === move) board[rowIndex][cellIndex] = '';
-      })
+      }),
     );
 
     return board;
@@ -34,7 +34,7 @@ const getWinner = (boards: Board[]): Board =>
   boards.filter(
     (board) =>
       board.some((row) => row.every((cell) => cell === '')) ||
-      transpose(board).some((row) => row.every((cell) => cell === ''))
+      transpose(board).some((row) => row.every((cell) => cell === '')),
   )[0];
 
 const getWinningBoardValue = (board: Board): number =>

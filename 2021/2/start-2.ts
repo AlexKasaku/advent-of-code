@@ -34,7 +34,7 @@ const start = async () => {
 
       return position;
     },
-    { horizontal: 0, depth: 0, aim: 0 } as Position
+    { horizontal: 0, depth: 0, aim: 0 } as Position,
   );
 
   console.log(position);

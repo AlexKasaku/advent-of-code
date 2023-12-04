@@ -26,7 +26,7 @@ export const snafuToInt = (snafu: Snafu): number =>
     }, 0);
 
 export const intToSnafu = (value: number): Snafu => {
-  let base5 = '0' + value.toString(5);
+  const base5 = '0' + value.toString(5);
   let converted = Array.from(base5, Number)
     .reverse()
     .map((value, index, array) => {

@@ -71,7 +71,7 @@ const start = async () => {
 
   const pointOccurences = points.reduce(groupByDuplicate, {});
   const duplicatePoints = Object.entries(pointOccurences).filter(
-    (o) => o[1] > 1
+    (o) => o[1] > 1,
   );
   console.log(duplicatePoints.length);
 };

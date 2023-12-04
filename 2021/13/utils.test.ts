@@ -15,13 +15,13 @@ describe('foldOn', () => {
 
   test('yAxis', () => {
     expect(
-      foldOn([[true], [false], [false], [false], [true]], false, 2)
+      foldOn([[true], [false], [false], [false], [true]], false, 2),
     ).toEqual([[true], [false]]);
     expect(
-      foldOn([[false], [false], [false], [false], [true]], false, 2)
+      foldOn([[false], [false], [false], [false], [true]], false, 2),
     ).toEqual([[true], [false]]);
     expect(
-      foldOn([[true], [false], [false], [false], [true]], false, 3)
+      foldOn([[true], [false], [false], [false], [true]], false, 3),
     ).toEqual([[true], [false], [true]]);
   });
 });

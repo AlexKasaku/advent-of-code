@@ -2,7 +2,6 @@ import { Grid, Position } from '@utils/grid';
 import toSum from '@utils/toSum';
 import fs from 'fs';
 import path from 'path';
-import { getSystemErrorMap } from 'util';
 import {
   HorizontalRock,
   LRock,
@@ -60,9 +59,9 @@ const start = async () => {
   let currentRock: Rock | null = null;
   let movesRemaining = [...moves];
 
-  var startTime = performance.now();
+  const startTime = performance.now();
 
-  let heightIncreases = [];
+  const heightIncreases = [];
 
   while (rocksRemaining > 0) {
     // Do we have a rock to move?
@@ -84,12 +83,10 @@ const start = async () => {
 
         if (moveLeft) {
           currentRock.Position.x--;
-        } else {
         }
       } else if (currentRock.checkRight()) {
         // Move right
         currentRock.Position.x++;
-      } else {
       }
 
       // Check if can move down
@@ -102,7 +99,7 @@ const start = async () => {
         currentRock.fillInSpace();
         if (currentRock.Position.y + currentRock.Shape.length > highestRock) {
           heightIncreases.push(
-            currentRock.Position.y + currentRock.Shape.length - highestRock
+            currentRock.Position.y + currentRock.Shape.length - highestRock,
           );
           highestRock = currentRock.Position.y + currentRock.Shape.length; // Shape-length represents height
         } else {
@@ -130,12 +127,12 @@ const start = async () => {
 
   console.log(`First 855: ${heightIncreases.slice(0, 855).reduce(toSum)}`);
   console.log(
-    `Next 1705: ${heightIncreases.slice(855, 855 + 1705).reduce(toSum)}`
+    `Next 1705: ${heightIncreases.slice(855, 855 + 1705).reduce(toSum)}`,
   );
   console.log(
     `First 730 of a block: ${heightIncreases
       .slice(855, 855 + 730)
-      .reduce(toSum)}`
+      .reduce(toSum)}`,
   );
 };
 

@@ -14,7 +14,7 @@ const posToString = ({ x, y, z }: Position) => `${x},${y},${z}`;
 // Raises a callback for each orthagonally adjacent point in a grid to a position.
 const forEachOrthagonalPoint = (
   point: Position,
-  callback: (position: Position) => void
+  callback: (position: Position) => void,
 ) => {
   for (let x = point.x - 1; x <= point.x + 1; x++) {
     for (let y = point.y - 1; y <= point.y + 1; y++) {

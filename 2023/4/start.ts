@@ -25,11 +25,14 @@ const part1 = (rounds: Round[]) => {
 type CardCopies = Map<number, number>;
 
 const part2 = (rounds: Round[]) => {
-  const cardCopies: CardCopies = new Map<number, number>();
+  // Initialize copy map with entry of 1 for every card
+  const cardCopies: CardCopies = new Map<number, number>(
+    [...new Array(rounds.length)].map((x, i) => [i + 1, 1]),
+  );
+
+  console.dir(cardCopies, { depth: null });
 
   for (const round of rounds) {
-    // Set initial count of 1 for this copy if not yet set
-    cardCopies.set(round.id, cardCopies.get(round.id) ?? 1);
     const copiesOfThisCard = cardCopies.get(round.id)!;
 
     const matches = intersect(round.winningNumbers, round.numbers).length;

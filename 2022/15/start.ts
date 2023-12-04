@@ -30,7 +30,7 @@ const start = async () => {
       //console.log(`Checking ${x},${y}`);
 
       const inSensorRange = info.sensors.find(
-        (i) => manhattanDistance(currentPoint, i.sensor) <= i.distanceToBeacon
+        (i) => manhattanDistance(currentPoint, i.sensor) <= i.distanceToBeacon,
       );
 
       if (inSensorRange) {
@@ -48,7 +48,7 @@ const start = async () => {
         console.log(currentPoint);
         console.log(currentPoint.x * 4000000 + currentPoint.y);
         console.log(
-          `Search took ${performance.now() - startTime} milliseconds`
+          `Search took ${performance.now() - startTime} milliseconds`,
         );
 
         return;

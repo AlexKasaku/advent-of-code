@@ -40,7 +40,7 @@ export const parsePoints = (content: string) =>
 
 export const createGridFromPoints = (
   points: Point[],
-  addFloor: boolean = false
+  addFloor: boolean = false,
 ): Grid<Space> => {
   // Get size of grid
   // Do we need to ensure grid is as small as possible?
@@ -56,7 +56,7 @@ export const createGridFromPoints = (
   const grid = new Grid<Space>(
     maxX + 1 + floorXBuffer,
     maxY + 1 + floorYBuffer,
-    ({ x, y }) => ({ x, y, content: null })
+    ({ x, y }) => ({ x, y, content: null }),
   );
 
   for (const point of points) {
@@ -84,7 +84,7 @@ export const getChar = (content: ContentType): string => {
 
 export const getNextPointForSand = (
   grid: Grid<Space>,
-  point: Point
+  point: Point,
 ): Point | 'off' | 'rest' => {
   // Determine the next point for the sand
 
@@ -106,7 +106,7 @@ export const getNextPointForSand = (
 
 const checkPoint = (
   grid: Grid<Space>,
-  point: Point
+  point: Point,
 ): 'blocked' | 'off' | Point => {
   const space = grid.get(point);
 

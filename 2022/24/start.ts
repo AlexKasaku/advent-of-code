@@ -38,7 +38,7 @@ const start = async () => {
   const startTime = performance.now();
 
   // Used to track unique positions we've already met
-  let visitedStates = new Set<string>();
+  const visitedStates = new Set<string>();
   const stateToString = (state: State) =>
     `${state.position.x},${state.position.y},${
       state.stepsTaken % uniqueStates
@@ -51,7 +51,7 @@ const start = async () => {
     // Get grid state for next step. We need next move because that's where the blizzards will *BE*.
     const gridState = getGridState(
       setup,
-      (currentState.stepsTaken + 1) % uniqueStates
+      (currentState.stepsTaken + 1) % uniqueStates,
     );
 
     const currentDestination = destinations[0];
@@ -66,7 +66,7 @@ const start = async () => {
         console.log(
           `Processed ${iterations} iterations in ${
             performance.now() - startTime
-          }ms`
+          }ms`,
         );
         break;
       } else {
@@ -74,7 +74,7 @@ const start = async () => {
         destinations.shift();
 
         console.log(
-          `Reached current destination on step: ${currentState.stepsTaken + 1}`
+          `Reached current destination on step: ${currentState.stepsTaken + 1}`,
         );
 
         // Reset the state queue
@@ -93,7 +93,7 @@ const start = async () => {
       ].filter(
         (space) =>
           (!space.wall || space.start || space.end) &&
-          space.blizzards.length === 0
+          space.blizzards.length === 0,
       );
 
       // Map those new positions to a new state. Steps taken + time move on 1.

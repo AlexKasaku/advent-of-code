@@ -29,7 +29,7 @@ class BaseRock implements Rock {
     const segment = this.Grid.getSegment(
       position,
       this.Shape[0].length,
-      this.Shape.length
+      this.Shape.length,
     ).flat();
 
     return (
@@ -64,7 +64,7 @@ class BaseRock implements Rock {
         const piece = flatShape.shift();
         if (piece) space.isFilled = true;
         return space;
-      }
+      },
     );
   };
 

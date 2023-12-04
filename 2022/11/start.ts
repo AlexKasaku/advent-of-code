@@ -28,7 +28,7 @@ const monkeyInputRegex =
 const createOperation = (operation: string) => {
   // Uses eval, only to be used when we're sure of the input!
   return (val: number): number => {
-    let expression = operation.replaceAll('old', val.toString());
+    const expression = operation.replaceAll('old', val.toString());
 
     // Let's be safe, only allow digits, spaces, + and * through
     if (!operation.match(/[/d +*]+/))

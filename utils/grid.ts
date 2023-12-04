@@ -16,7 +16,7 @@ export class Grid<T> {
   constructor(
     width: number,
     height: number,
-    initializationCallback?: (position: Position) => T
+    initializationCallback?: (position: Position) => T,
   ) {
     this.Width = width;
     this.Height = height;
@@ -24,7 +24,7 @@ export class Grid<T> {
     this.Values = createAndInitArray(
       (y, x) => initializationCallback?.({ x, y }),
       width,
-      height
+      height,
     );
   }
 
@@ -35,7 +35,7 @@ export class Grid<T> {
       (value) => {
         neighbours.push(value);
       },
-      orthagonal
+      orthagonal,
     );
     return neighbours;
   };
@@ -45,7 +45,7 @@ export class Grid<T> {
   forEachNeighbour = (
     point: Position,
     callback: (value: T, position: Position) => void,
-    orthagonal: boolean = true
+    orthagonal: boolean = true,
   ) => {
     for (let x = point.x - 1; x <= point.x + 1; x++) {
       for (let y = point.y - 1; y <= point.y + 1; y++) {
@@ -64,7 +64,7 @@ export class Grid<T> {
   getAllInDirection = (
     { x, y }: Position,
     direction: Direction,
-    inclusive: boolean
+    inclusive: boolean,
   ) => {
     switch (direction) {
       case 'up':
@@ -84,7 +84,7 @@ export class Grid<T> {
     { x, y }: Position,
     width: number,
     height: number,
-    callback: (value: T) => T
+    callback: (value: T) => T,
   ): void => {
     for (let curY = y; curY < y + height; curY++) {
       for (let curX = x; curX < x + width; curX++)

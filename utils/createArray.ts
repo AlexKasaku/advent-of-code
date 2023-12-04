@@ -39,7 +39,7 @@ const innerCreateArray = <T>(
       arr[arrIndex] = innerCreateArray(
         [...indexes, arrIndex],
         initCallback,
-        ...sizes.slice(1)
+        ...sizes.slice(1),
       );
     }
   } else {

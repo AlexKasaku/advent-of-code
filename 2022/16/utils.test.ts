@@ -11,7 +11,7 @@ describe('optimizeRouteMap', () => {
         { name: 'A', flowRate: 1 },
         { name: 'ToRemove', flowRate: 0 },
         { name: 'Z', flowRate: 1 },
-      ].map((x) => [x.name, x])
+      ].map((x) => [x.name, x]),
     );
 
     const routeMap: RouteMap = new Map([
@@ -43,7 +43,7 @@ describe('optimizeRouteMap', () => {
         { name: 'ToRemove1', flowRate: 0 },
         { name: 'ToRemove2', flowRate: 0 },
         { name: 'Z', flowRate: 1 },
-      ].map((x) => [x.name, x])
+      ].map((x) => [x.name, x]),
     );
 
     const routeMap: RouteMap = new Map([
@@ -83,7 +83,7 @@ describe('optimizeRouteMap', () => {
         { name: 'ToRemove2', flowRate: 0 },
         { name: 'ToRemove3', flowRate: 0 },
         { name: 'Z', flowRate: 1 },
-      ].map((x) => [x.name, x])
+      ].map((x) => [x.name, x]),
     );
 
     const routeMap: RouteMap = new Map([
@@ -140,7 +140,7 @@ describe('optimizeRouteMap', () => {
       [
         { name: 'A', flowRate: 1 },
         { name: 'ToRemove', flowRate: 0 },
-      ].map((x) => [x.name, x])
+      ].map((x) => [x.name, x]),
     );
 
     const routeMap: RouteMap = new Map([
@@ -162,7 +162,7 @@ describe('optimizeRouteMap', () => {
         { name: 'AA', flowRate: 0 },
         { name: 'ToRemove', flowRate: 0 },
         { name: 'Z', flowRate: 1 },
-      ].map((x) => [x.name, x])
+      ].map((x) => [x.name, x]),
     );
 
     const routeMap: RouteMap = new Map([
@@ -192,7 +192,7 @@ describe('collapseAllRoutes', () => {
         { name: 'A', flowRate: 1 },
         { name: 'B', flowRate: 1 },
         { name: 'C', flowRate: 1 },
-      ].map((x) => [x.name, x])
+      ].map((x) => [x.name, x]),
     );
 
     const routeMap: RouteMap = new Map([

@@ -14,7 +14,7 @@ const updatePositionIfShorter = (position: Space, distance: number): void => {
 const updateNeighbours = (
   grid: Grid<Space>,
   { x, y, distance, value }: Space,
-  unvisited: Set<Space>
+  unvisited: Set<Space>,
 ): void => {
   // Find each position that is reachable and unvisited
   if (x > 0) {
@@ -47,7 +47,7 @@ const findShortestDistance = (candidates: Set<Space>) => {
   const candidateArray = [...candidates.values()];
 
   let shortestDistance = Number.MAX_SAFE_INTEGER;
-  var shortestDistanceIndex = -1;
+  let shortestDistanceIndex = -1;
 
   for (let i = 0; i < candidateArray.length; i++) {
     if (candidateArray[i].distance < shortestDistance) {
