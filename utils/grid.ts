@@ -14,8 +14,8 @@ export class Grid<T> {
   readonly Height: number;
 
   constructor(
-    width: number,
     height: number,
+    width: number,
     initializationCallback?: (position: Position) => T,
   ) {
     this.Width = width;
@@ -23,8 +23,8 @@ export class Grid<T> {
 
     this.Values = createAndInitArray(
       (y, x) => initializationCallback?.({ x, y }),
-      width,
       height,
+      width,
     );
   }
 
