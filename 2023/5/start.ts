@@ -5,7 +5,7 @@ import { Almanac } from './types';
 import range from '@utils/range';
 import { chunk } from 'lodash';
 
-const debugMode = false;
+const debugMode = true;
 const debug = (...params: any[]) => debugMode && console.log(...params);
 const log = (...params: any[]) => console.log(...params);
 
@@ -33,44 +33,43 @@ const run = (almanac: Almanac) => {
     almanac.humidityLocation,
   ];
 
-  let lowest = Number.MAX_SAFE_INTEGER;
-
-  // Part 1
-  //const processedSeeds = almanac.seeds;
-
-  // Part 2
+  const reverseMaps = maps.reverse();
   const seedGroups = chunk(almanac.seeds, 2);
 
-  for (const seedGroup of seedGroups) {
-    for (
-      let seed = seedGroup[0];
-      seed < seedGroup[0] + seedGroup[1] - 1;
-      seed++
-    ) {
-      debug('Seed ' + seed);
-      let destination = seed;
+  let testLocation = 1;
 
-      for (const map of maps) {
-        for (const itemMap of map) {
-          if (
-            destination >= itemMap.source &&
-            destination <= itemMap.source + itemMap.range - 1
-          ) {
-            const oldDest = destination;
-            const diff = destination - itemMap.source;
-            destination = itemMap.dest + diff;
+  while (true) {
+    if (testLocation % 10000000 == 0) debug(`Testing location ${testLocation}`);
 
-            debug(`Mapped ${oldDest} => ${destination}`);
-            break;
-          }
+    // Work backwards through maps to find the seed number that would result in this end location
+    let sourceLocation = testLocation;
+
+    for (const map of reverseMaps) {
+      for (const itemMap of map) {
+        if (
+          sourceLocation >= itemMap.dest &&
+          sourceLocation <= itemMap.dest + itemMap.range - 1
+        ) {
+          const diff = sourceLocation - itemMap.dest;
+          sourceLocation = itemMap.source + diff;
+          break;
         }
       }
-
-      if (destination < lowest) lowest = destination;
     }
-  }
 
-  log('Lowest: ' + lowest);
+    //Is that seed in the seed map? If so then it's the lowest!
+    for (const seedGroup of seedGroups) {
+      if (
+        sourceLocation >= seedGroup[0] &&
+        sourceLocation <= seedGroup[0] + seedGroup[1] - 1
+      ) {
+        log(`${testLocation} is lowest end location!`);
+        return;
+      }
+    }
+
+    testLocation++;
+  }
 };
 
 const start = async (file: string) => {
