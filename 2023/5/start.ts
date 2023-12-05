@@ -2,27 +2,13 @@ import fs from 'fs';
 import path from 'path';
 import { parseInput } from './utils';
 import { Almanac } from './types';
-import range from '@utils/range';
 import { chunk } from 'lodash';
 
 const debugMode = true;
 const debug = (...params: any[]) => debugMode && console.log(...params);
 const log = (...params: any[]) => console.log(...params);
 
-// const expandSeedRange = (seedRanges: number[]) => {
-//   const seeds = [];
-//   for (let index = 0; index < seedRanges.length; index += 2) {
-//     seeds.push(
-//       ...range(
-//         seedRanges[index],
-//         seedRanges[index] + seedRanges[index + 1] - 1,
-//       ),
-//     );
-//   }
-//   return seeds;
-// };
-
-const run = (almanac: Almanac) => {
+const run = (almanac: Almanac, part1: boolean) => {
   const maps = [
     almanac.seedSoil,
     almanac.soilFertilizer,
@@ -57,14 +43,24 @@ const run = (almanac: Almanac) => {
       }
     }
 
-    //Is that seed in the seed map? If so then it's the lowest!
-    for (const seedGroup of seedGroups) {
-      if (
-        sourceLocation >= seedGroup[0] &&
-        sourceLocation <= seedGroup[0] + seedGroup[1] - 1
-      ) {
+    // Now we have source seed, is it in seed map? If so then this is the lowest location.
+    if (part1) {
+      // Part 1 - Straight lookup. This backwards-method that is required for part 2 is REALLY
+      // slow for part 1! But we can get the answer still.
+      if (almanac.seeds.indexOf(sourceLocation) > -1) {
         log(`${testLocation} is lowest end location!`);
         return;
+      }
+    } else {
+      // Part 2 - Determine using seed groups
+      for (const seedGroup of seedGroups) {
+        if (
+          sourceLocation >= seedGroup[0] &&
+          sourceLocation <= seedGroup[0] + seedGroup[1] - 1
+        ) {
+          log(`${testLocation} is lowest end location!`);
+          return;
+        }
       }
     }
 
@@ -77,7 +73,8 @@ const start = async (file: string) => {
 
   const almanac = parseInput(content);
 
-  run(almanac);
+  // Part 1
+  run(almanac, true);
 };
 
 //start('./files/example.txt');
