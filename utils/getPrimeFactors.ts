@@ -1,20 +1,21 @@
-// Check if the divisor is a prime number. If using this multiple times you might
-// want to build a map once and then refer to that.
-const isPrime = (number: number) => {
-  for (let j = 2; j <= number / 2; j++) {
-    if (number % j === 0) return false;
-  }
-  return true;
-};
+import isPrime from './isPrime';
 
-export const getPrimeFactors = (number: number) => {
+/**
+ * Returns the prime factors of a number
+ * @param number The number to return prime factors for
+ * @param number An array of prime numbers (see buildPrimeArray) to speed up execution
+ * @returns An array of prime factors
+ */
+const getPrimeFactors = (number: number, primes?: number[]) => {
   const primeArray = [];
 
   // Find divisors starting with 2
   for (let divisor = 2; divisor <= number; divisor++) {
     if (number % divisor !== 0) continue;
 
-    const divisorIsPrime = isPrime(divisor);
+    const divisorIsPrime = primes
+      ? primes.indexOf(divisor) > -1
+      : isPrime(divisor);
     if (!divisorIsPrime) continue;
 
     // If the divisor is prime, divide integer with the number and store
@@ -24,3 +25,5 @@ export const getPrimeFactors = (number: number) => {
 
   return primeArray;
 };
+
+export default getPrimeFactors;
