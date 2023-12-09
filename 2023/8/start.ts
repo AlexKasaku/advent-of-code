@@ -4,6 +4,7 @@ import { buildNetwork, parseInput } from './utils';
 import { Node } from './types';
 import getPrimeFactors from '@utils/getPrimeFactors';
 import buildPrimeArray from '@utils/buildPrimeArray';
+import lowestCommonMultiple from '@utils/lowestCommonMultiple';
 
 const debugMode = true;
 const debug = (...params: any[]) => debugMode && console.log(...params);
@@ -57,16 +58,8 @@ const part2 = (steps: string, nodes: Map<string, Node>) => {
 
   log(loopsAt);
 
-  // We've got the looping positions, find lowest common multiple. Assumes
-  // prime factors won't go above 1000;
-  const primes = buildPrimeArray(1000);
-  const primeFactors = loopsAt.map((l) => getPrimeFactors(l, primes));
-  const uniquePrimeFactors = [...new Set(primeFactors.flat())];
-  log(uniquePrimeFactors);
-
-  const lowestCommonMultiple = uniquePrimeFactors.reduce((a, b) => a * b, 1);
-
-  log(lowestCommonMultiple);
+  const lcm = lowestCommonMultiple(...loopsAt);
+  log(lcm);
 };
 
 const start = async (file: string) => {

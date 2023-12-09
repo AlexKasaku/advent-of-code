@@ -19,8 +19,13 @@ const getPrimeFactors = (number: number, primes?: number[]) => {
     if (!divisorIsPrime) continue;
 
     // If the divisor is prime, divide integer with the number and store
-    number /= divisor;
-    primeArray.push(divisor);
+    let power = 0;
+
+    while (number % divisor == 0) {
+      number /= divisor;
+      power++;
+    }
+    primeArray.push({ factor: divisor, power });
   }
 
   return primeArray;
