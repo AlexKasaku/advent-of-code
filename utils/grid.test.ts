@@ -37,18 +37,68 @@ describe('grid', () => {
     });
   });
 
-  // describe('getAllInDirection', () => {
-  //   const grid = new Grid(3, 3, ({ x, y }) => y * 3 + x + 1);
+  describe('getAllInDirection', () => {
+    // Create 1 - 25 in grid of 5x5; 13 in the center;
+    // 1  2  3  4  5
+    // 6  7  8  9  10
+    // 11 12 13 14 15
+    // 16 17 18 19 20
+    // 21 22 23 24 25
+    const grid = new Grid(5, 5, ({ x, y }) => y * 5 + x + 1);
 
-  //   it.each([[{ x: 0, y: 0 }, 'up', true, [1]]])(
-  //     'returns correct positions',
-  //     (position, direction, inclusive, expected) => {
-  //       expect(
-  //         grid.getAllInDirection(position, direction as Direction, inclusive)
-  //       ).toEqual(expected);
-  //     }
-  //   );
-  // });
+    it.each([
+      ['N', [8, 3]],
+      ['NE', [9, 5]],
+      ['E', [14, 15]],
+      ['SE', [19, 25]],
+      ['S', [18, 23]],
+      ['SW', [17, 21]],
+      ['W', [12, 11]],
+      ['NW', [7, 1]],
+    ])('returns correct positions for %p at center', (direction, expected) => {
+      const center = { x: 2, y: 2 }; // 13
+
+      expect(grid.getAllInDirection(center, direction as Direction)).toEqual(
+        expected,
+      );
+    });
+
+    it.each([
+      ['N', [14, 9, 4]],
+      ['NE', [15]],
+      ['E', [20]],
+      ['SE', [25]],
+      ['S', [24]],
+      ['SW', [23]],
+      ['W', [18, 17, 16]],
+      ['NW', [13, 7, 1]],
+    ])(
+      'returns correct positions for %p at off-center position',
+      (direction, expected) => {
+        const center = { x: 3, y: 3 }; // 19
+
+        expect(grid.getAllInDirection(center, direction as Direction)).toEqual(
+          expected,
+        );
+      },
+    );
+
+    it.each([
+      ['N', []],
+      ['NE', []],
+      ['W', []],
+      ['NW', []],
+    ])(
+      'returns correct positions for %p at edge position',
+      (direction, expected) => {
+        const center = { x: 0, y: 0 }; // 1
+
+        expect(grid.getAllInDirection(center, direction as Direction)).toEqual(
+          expected,
+        );
+      },
+    );
+  });
 
   describe('getSegment', () => {
     const grid = new Grid(3, 3, ({ x, y }) => y * 3 + x + 1);

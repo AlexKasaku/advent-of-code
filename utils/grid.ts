@@ -6,7 +6,17 @@ export type Position = {
   y: number;
 };
 
-export type Direction = 'up' | 'down' | 'left' | 'right';
+export const allDirections = [
+  'N',
+  'NE',
+  'E',
+  'SE',
+  'S',
+  'SW',
+  'W',
+  'NW',
+] as const;
+export type Direction = (typeof allDirections)[number];
 
 export class Grid<T> {
   Values: T[][];
@@ -61,15 +71,29 @@ export class Grid<T> {
     }
   };
 
-  getAllInDirection = (
-    { x, y }: Position,
-    direction: Direction,
-    inclusive: boolean,
-  ) => {
-    switch (direction) {
-      case 'up':
-        range(0, y).map((x1) => this.Values[y][x1]);
-    }
+  getAllInDirection = ({ x, y }: Position, direction: Direction) => {
+    // Start at the position and keep moving in direction acquiring cells, until we run out of grid.
+    const deltaX =
+      direction.indexOf('W') > -1 ? -1 : direction.indexOf('E') > -1 ? 1 : 0;
+    const deltaY =
+      direction.indexOf('N') > -1 ? -1 : direction.indexOf('S') > -1 ? 1 : 0;
+
+    const values = [];
+    let curX = x,
+      curY = y;
+    let position: T | undefined = undefined;
+    do {
+      values.push(position);
+
+      curX += deltaX;
+      curY += deltaY;
+      position = this.get({ x: curX, y: curY });
+    } while (position !== undefined);
+
+    // Remove first element
+    values.shift();
+
+    return values;
   };
 
   get = ({ x, y }: Position): T | undefined => this.Values[y]?.[x];
