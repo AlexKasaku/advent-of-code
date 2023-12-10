@@ -1,9 +1,9 @@
 import fs from 'fs';
 import path from 'path';
 import { parseInput } from './utils';
-import toSum from '@utils/toSum';
+import { Command } from './types';
 
-const debugMode = true;
+const debugMode = false;
 const debug = (...params: any[]) => debugMode && console.log(...params);
 const log = (...params: any[]) => console.log(...params);
 
@@ -17,12 +17,7 @@ const binaryToBigInt = (number: string): bigint => {
   return integer;
 };
 
-const start = async (file: string) => {
-  const content = fs.readFileSync(path.join(__dirname, file), 'utf8');
-
-  const commands = parseInput(content);
-  log(commands);
-
+const part1 = (commands: Command[]) => {
   // Store memory as a map so we don't need to initialize a gigantic array that is mostly empty
   const memory = new Map<bigint, bigint>();
   let mask = '';
@@ -50,9 +45,63 @@ const start = async (file: string) => {
     }
   }
 
-  log(memory);
   log([...memory.values()].reduce((a, b) => a + b, 0n));
 };
 
-//start('./files/example.txt');
+const part2 = (commands: Command[]) => {
+  // Store memory as a map so we don't need to initialize a gigantic array that is mostly empty
+  const memory = new Map<bigint, bigint>();
+  let mask = '';
+
+  for (const command of commands) {
+    if (command.type === 'mask') {
+      mask = command.value;
+    } else {
+      const binary = [...command.location.toString(2).padStart(36, '0')];
+      for (let i = 0; i < binary.length; i++) {
+        if (mask[i] !== '0') binary[i] = mask[i];
+      }
+      const fluctuations = [binary.join('')];
+      const addresses = [];
+
+      while (fluctuations.length > 0) {
+        const variation = fluctuations.shift()!;
+        const firstX = variation.indexOf('X');
+        if (firstX === -1) addresses.push(variation);
+        else {
+          fluctuations.push(
+            variation.substring(0, firstX) +
+              '0' +
+              variation.substring(firstX + 1),
+          );
+          fluctuations.push(
+            variation.substring(0, firstX) +
+              '1' +
+              variation.substring(firstX + 1),
+          );
+        }
+      }
+
+      debug(addresses);
+      for (const address of addresses) {
+        const toBigint = binaryToBigInt(address);
+        debug(toBigint);
+        memory.set(toBigint, BigInt(command.value));
+      }
+      //break;
+    }
+  }
+
+  log([...memory.values()].reduce((a, b) => a + b, 0n));
+};
+
+const start = async (file: string) => {
+  const content = fs.readFileSync(path.join(__dirname, file), 'utf8');
+
+  const commands = parseInput(content);
+
+  part2(commands);
+};
+
+//start('./files/example2.txt');
 start('./files/input.txt');
