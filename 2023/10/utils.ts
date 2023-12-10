@@ -6,7 +6,15 @@ export const renderGrid = (grid: Grid<Space>, loopOnly: boolean): void => {
   for (const row of grid.Values)
     console.log(
       row.reduce(
-        (a, b) => a + (loopOnly ? (b.isLoop ? b.char : '.') : b.char),
+        (a, b) =>
+          a +
+          (loopOnly
+            ? b.isLoop
+              ? b.char
+              : b.isInsideLoop
+                ? 'X'
+                : '.'
+            : b.char),
         '' as string,
       ),
     );
@@ -22,5 +30,7 @@ export const parseInput = (input: string) => {
     char: values[y][x],
     isPipe: values[y][x] != '.',
     isLoop: false,
+    isInsideLoop: false,
+    startSpaceAltChar: '',
   }));
 };

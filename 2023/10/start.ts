@@ -3,6 +3,7 @@ import path from 'path';
 import { parseInput, renderGrid } from './utils';
 import { Grid } from '@utils/grid';
 import { Space } from './types';
+import toSum from '@utils/toSum';
 
 const debugMode = true;
 const debug = (...params: any[]) => debugMode && console.log(...params);
@@ -51,6 +52,16 @@ const updateGridWithConnections = (grid: Grid<Space>): Space => {
     if (neighbour.spaceS === startSpace) startSpace.spaceN = neighbour;
     if (neighbour.spaceW === startSpace) startSpace.spaceE = neighbour;
   }
+  if (startSpace.spaceN !== undefined)
+    startSpace.startSpaceAltChar =
+      startSpace.spaceE !== undefined
+        ? 'L'
+        : startSpace.spaceS != undefined
+          ? '|'
+          : 'J';
+  else if (startSpace.spaceE !== undefined)
+    startSpace.startSpaceAltChar = startSpace.spaceS !== undefined ? 'F' : '-';
+  else startSpace.startSpaceAltChar = '7';
 
   return startSpace;
 };
@@ -82,11 +93,61 @@ const walkGrid = (grid: Grid<Space>, startSpace: Space): void => {
     thisSpace = nextSpace!;
 
     distanceBackToStart++;
-
-    debug(`Moving to ${thisSpace.x},${thisSpace.y}`);
   } while (thisSpace != startSpace);
 
-  log(distanceBackToStart / 2);
+  log(`Furthest space: ${distanceBackToStart / 2}`);
+};
+
+const findInsideLoopSpaces = (grid: Grid<Space>): void => {
+  // Determine inside loop spaces by walking along each row. Each time we cross a pipe we
+  // flip to inside / outside. Any non-loop spaces that are found whilst inside are marked as such.
+
+  // Whenever we encounter pipe elbows we need to pay attention and only flip to inside/outside if
+  // the next elbow piece completes the N/S cross
+
+  // Should note that we'll only ever encounter an J or 7 *after* an L or J. As long we're only looking
+  // at loop pieces!
+
+  for (const row of grid.Values) {
+    let insideLoop = false;
+    let enteredFromN = false,
+      enteredFromS = false;
+    for (const space of row) {
+      if (space.isLoop) {
+        const char = space.char === 'S' ? space.startSpaceAltChar : space.char;
+
+        switch (char) {
+          case '|':
+            insideLoop = !insideLoop;
+            break;
+          case 'L':
+            enteredFromN = true;
+            break;
+          case 'F':
+            enteredFromS = true;
+            break;
+          case '7':
+            if (enteredFromN) insideLoop = !insideLoop;
+            enteredFromN = false;
+            enteredFromS = false;
+            break;
+          case 'J':
+            if (enteredFromS) insideLoop = !insideLoop;
+            enteredFromN = false;
+            enteredFromS = false;
+            break;
+        }
+      } else {
+        if (insideLoop && !space.isLoop) space.isInsideLoop = true;
+      }
+    }
+  }
+
+  const insideSpaces = grid.Values.flat()
+    .map((s) => (s.isInsideLoop ? 1 : 0))
+    .reduce(toSum, 0);
+
+  log(`Inside spaces: ${insideSpaces}`);
 };
 
 const start = async (file: string) => {
@@ -100,9 +161,12 @@ const start = async (file: string) => {
   // Part1: Walk the grid and count the spaces
   walkGrid(grid, startSpace);
 
+  // Part2: Fill outside loop spaces
+  findInsideLoopSpaces(grid);
+
   renderGrid(grid, true);
 };
 
-//start('./files/example.txt');
+//start('./files/test.txt');
 //start('./files/example2.txt');
 start('./files/input.txt');

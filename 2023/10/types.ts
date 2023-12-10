@@ -8,4 +8,6 @@ export type Space = Position & {
   spaceW?: Space;
   isPipe: boolean;
   isLoop: boolean;
+  isInsideLoop: boolean;
+  startSpaceAltChar: string;
 };
