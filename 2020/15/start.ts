@@ -7,27 +7,30 @@ const start = async (numbers: number[]) => {
   const lastSpoken = new Map<number, number[]>();
   let toSpeak;
 
-  while (turn < 2020) {
+  while (turn < 30000000) {
+    //if (turn % 2000000 == 0) log(`Turn: ${turn}`);
+
     if (numbers.length > 0) {
       // First read out the numbers
       toSpeak = numbers.shift();
     } else {
       // Run out of numbers, now consider the last number
-      //toSpeak = turn - 1 - (lastSpoken.get(toSpeak!) ?? 0);
       const lastSpokenForNumber = (lastSpoken.get(toSpeak!) ?? []) as number[];
-      if (lastSpokenForNumber.length > 1)
-        toSpeak =
-          turn - 1 - lastSpokenForNumber[lastSpokenForNumber.length - 2];
-      else toSpeak = 0;
+      if (lastSpokenForNumber.length > 1) {
+        toSpeak = lastSpokenForNumber[1] - lastSpokenForNumber[0];
+      } else toSpeak = 0;
     }
 
-    debug(toSpeak);
     const lastSpokenForNumber = lastSpoken.get(toSpeak!) ?? [];
-    lastSpoken.set(toSpeak!, [...lastSpokenForNumber, turn]);
-    //debug(lastSpoken);
+    lastSpoken.set(toSpeak!, [
+      ...lastSpokenForNumber.slice(lastSpokenForNumber.length - 1),
+      turn,
+    ]);
 
     turn++;
   }
+
+  log(toSpeak);
 };
 
 //start([0, 3, 6]);
