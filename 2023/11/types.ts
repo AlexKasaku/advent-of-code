@@ -1,7 +1,5 @@
 import { Position } from '@utils/grid';
 
-export type Space = {
+export type Space = Position & {
   isGalaxy: boolean;
 };
-
-export type SpaceWithPosition = Position & Space;
