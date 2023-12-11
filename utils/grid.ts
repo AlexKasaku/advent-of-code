@@ -1,4 +1,3 @@
-import { range } from 'lodash';
 import { createAndInitArray } from './createArray';
 
 export type Position = {
