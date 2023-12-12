@@ -1,13 +1,23 @@
 import { EOL } from 'os';
 import { Row } from './types';
 
-export const parseInput = (input: string): Row[] => {
+export const parseInput = (input: string, unfold: boolean): Row[] => {
   return input.split(EOL).map((line) => {
     const parts = line.split(' ');
 
+    const pattern = parts[0];
+    const groups = parts[1].split(',').map(Number);
+
+    if (!unfold)
+      return {
+        pattern,
+        groups,
+      };
+
+    // Repeat pattern + groups 5 times
     return {
-      pattern: parts[0],
-      groups: parts[1].split(',').map(Number),
+      pattern: [pattern, pattern, pattern, pattern, pattern].join('?'),
+      groups: [groups, groups, groups, groups, groups].flat(),
     };
   });
 };
@@ -15,105 +25,93 @@ export const parseInput = (input: string): Row[] => {
 type WorkInProgress = {
   remainingGroups: number[];
   remainingPatternLength: number;
-  position: number;
-  indexes: number[];
+  value: string;
 };
 
 const toLengthForGroups = (a: number, b: number) => a + b + 1;
 
-export const buildPatternIndexCombinations = ({
+// Store combinations for known pattern + group combos
+const combinationCountCache = new Map<string, number>();
+const createCacheKey = (pattern: string, groups: number[]) =>
+  `${pattern}|${groups}`;
+
+export const countPatternIndexCombinations = ({
   pattern,
   groups,
-}: Row): number[][] => {
-  const combinations: number[][] = [];
+}: Row): number => {
+  const cacheKey = createCacheKey(pattern, groups);
+  const existingCount = combinationCountCache.get(cacheKey);
 
-  // For length of string, work out the different ways of placing the groups.
+  if (existingCount !== undefined) return existingCount;
 
-  // Build as an array of indexes for starting positions. The indexes combined with
-  // groups must never go more than the pattern length;
-  const comboStack: WorkInProgress[] = [
-    {
-      remainingGroups: [...groups],
-      remainingPatternLength: pattern.length,
-      position: 0,
-      indexes: [],
-    },
-  ];
+  // Find all placements for next group that leave enough remaining pattern length
+  const firstGroup = [...groups].shift()!;
+  const remainingGroups = [...groups].slice(1);
 
-  while (comboStack.length > 0) {
-    const currentCombo = comboStack.shift()!;
-    //console.log(currentCombo);
+  // How much space we need to leave to account for remaining groups
+  const lengthRequiredForRemaining =
+    remainingGroups.length > 0 ? remainingGroups.reduce(toLengthForGroups) : 0;
 
-    if (currentCombo.remainingGroups.length > 0) {
-      // Find all placements for next group that leave enough remaining pattern length
-      const nextGroup = [...currentCombo.remainingGroups].shift()!;
-      const remainingGroups = [...currentCombo.remainingGroups].slice(1);
+  // How much space we need to fill with our placements
+  const lengthRequiredToFill = pattern.length - lengthRequiredForRemaining;
 
-      // How much space we need to leave to account for remaining groups
-      const lengthRequiredForRemaining =
-        remainingGroups.length > 0
-          ? remainingGroups.reduce(toLengthForGroups)
-          : 0;
+  // Work out how many index positions there can be for this group. Count the group
+  // as one bigger than it is to account for the space needed after it, IF there are still groups remaining
+  const placements =
+    lengthRequiredToFill +
+    1 -
+    (firstGroup + (remainingGroups.length > 0 ? 1 : 0));
 
-      // How much space we need to fill with our placements
-      const lengthRequiredToFill =
-        currentCombo.remainingPatternLength - lengthRequiredForRemaining;
+  let combinationCount = 0;
 
-      // Work out how many index positions there can be for this group. Count the group
-      // as one bigger than it is to account for the space needed after it, IF there are still groups remaining
-      const placements =
-        lengthRequiredToFill +
-        1 -
-        (nextGroup + (remainingGroups.length > 0 ? 1 : 0));
+  if (remainingGroups.length > 0) {
+    for (let index = 0; index < placements; index++) {
+      const testString = '.'.repeat(index) + '#'.repeat(firstGroup) + '.';
 
-      // Some debug statements
-      // console.log(`This group size: ${nextGroup}.`);
-      // console.log(
-      //   `Length required for remaining: ${lengthRequiredForRemaining}`,
-      // );
-      // console.log(`Length required to fill: ${lengthRequiredToFill}.`);
-      // console.log(`Placements: ${placements}.`);
+      if (isValidForStartOfPattern(pattern, testString)) {
+        const remainingPattern = pattern.substring(index + firstGroup + 1);
 
-      for (let index = 0; index < placements; index++) {
-        comboStack.push({
-          remainingGroups: remainingGroups,
-          remainingPatternLength:
-            currentCombo.remainingPatternLength - (nextGroup + index) - 1,
-          indexes: [...currentCombo.indexes, currentCombo.position + index],
-          position: currentCombo.position + index + nextGroup + 1,
+        combinationCount += countPatternIndexCombinations({
+          pattern: remainingPattern,
+          groups: remainingGroups,
         });
       }
-    } else {
-      // This combo is finished! Add it to the valid combos
-      combinations.push(currentCombo.indexes);
+    }
+  } else {
+    for (let index = 0; index < placements; index++) {
+      const testString =
+        '.'.repeat(index) +
+        '#'.repeat(firstGroup) +
+        '.'.repeat(pattern.length - index - firstGroup);
+
+      if (isValidForStartOfPattern(pattern, testString)) {
+        combinationCount++;
+      }
     }
   }
 
-  return combinations;
+  // Cache this combination count
+  combinationCountCache.set(cacheKey, combinationCount);
+
+  return combinationCount;
 };
 
-export const isValidForRow = ({ pattern, groups }: Row, indexes: number[]) => {
-  // We have a possible index combination, now determine if it fits the pattern
-
-  // Use groups + indexes to create a string
-  const asArray = [...new Array(pattern.length)].fill(false);
-
-  for (let groupIndex = 0; groupIndex < groups.length; groupIndex++) {
-    const group = groups[groupIndex];
-    const position = indexes[groupIndex];
-
-    for (let index = 0; index < group; index++) {
-      asArray[position + index] = true;
-    }
-  }
-
-  const asString = asArray.map((b) => (b ? '#' : '.')).join('');
+export const isValidForStartOfPattern = (
+  pattern: string,
+  newString: string,
+) => {
+  const patternToCheck = pattern.substring(0, newString.length);
 
   // Now work out if the string is valid for this pattern
-  for (let patternIndex = 0; patternIndex < pattern.length; patternIndex++) {
+  for (
+    let patternIndex = 0;
+    patternIndex < patternToCheck.length;
+    patternIndex++
+  ) {
     if (
-      (pattern[patternIndex] === '#' || pattern[patternIndex] === '.') &&
-      pattern[patternIndex] !== asString[patternIndex]
+      (patternToCheck[patternIndex] === '#' ||
+        patternToCheck[patternIndex] === '.') &&
+      patternToCheck[patternIndex] !== newString[patternIndex]
     )
       return false;
   }
