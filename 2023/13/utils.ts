@@ -16,7 +16,10 @@ export const parseInput = (input: string): Grid<Space>[] => {
   });
 };
 
-export const findReflectionRowIndex = (patternVaues: Space[][]): number => {
+export const findReflectionRowIndex = (
+  patternVaues: Space[][],
+  skipIndex?: number,
+): number => {
   let index = -1;
 
   // The reflection lies between two rows. The index is inclusive of the first half,
@@ -42,7 +45,10 @@ export const findReflectionRowIndex = (patternVaues: Space[][]): number => {
       delta++;
     } while (rowIndex - delta >= 0 && rowIndex + 1 + delta < stringRows.length);
 
-    if (foundReflection) {
+    if (
+      foundReflection &&
+      (skipIndex === undefined || skipIndex !== rowIndex)
+    ) {
       index = rowIndex;
       break;
     }
@@ -53,3 +59,11 @@ export const findReflectionRowIndex = (patternVaues: Space[][]): number => {
 
 export const rowToString = (values: Space[]): string =>
   values.reduce((a, b) => a + (b.isRock ? '#' : '.'), '');
+
+export const renderGrid = (grid: Grid<Space>): void => {
+  for (const row of grid.Values)
+    console.log(
+      row.reduce((a, b) => a + (b.isRock ? '⚪' : '⚫'), '' as string),
+    );
+  console.log();
+};
