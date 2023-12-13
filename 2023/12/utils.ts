@@ -22,12 +22,6 @@ export const parseInput = (input: string, unfold: boolean): Row[] => {
   });
 };
 
-type WorkInProgress = {
-  remainingGroups: number[];
-  remainingPatternLength: number;
-  value: string;
-};
-
 const toLengthForGroups = (a: number, b: number) => a + b + 1;
 
 // Store combinations for known pattern + group combos
@@ -65,6 +59,9 @@ export const countPatternIndexCombinations = ({
   let combinationCount = 0;
 
   if (remainingGroups.length > 0) {
+    // There are still remaining groups. For each valid placement of this group, add the combination count
+    // for the remaining groups and pattern they will use
+
     for (let index = 0; index < placements; index++) {
       const testString = '.'.repeat(index) + '#'.repeat(firstGroup) + '.';
 
@@ -78,6 +75,8 @@ export const countPatternIndexCombinations = ({
       }
     }
   } else {
+    // We don't have any remaining groups, so just find valid placements for this last group and return that.
+
     for (let index = 0; index < placements; index++) {
       const testString =
         '.'.repeat(index) +
