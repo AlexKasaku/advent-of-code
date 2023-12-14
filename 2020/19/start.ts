@@ -12,11 +12,11 @@ const start = async (file: string) => {
 
   const config = parseInput(content);
 
-  while (config.rules.size > 1) {
+  while (config.rules.size > 3) {
     // Eliminate rule by rule until only one left. We can remove a rule if it
     // doesn't reference any other rules.
     const ruleToRemove = [...config.rules.entries()].find(
-      (rule) => !/\d/.test(rule[1]),
+      (rule) => !/\d/.test(rule[1]) && rule[0] != 8 && rule[0] != 11,
     )!;
 
     // Remove the rule
@@ -39,18 +39,14 @@ const start = async (file: string) => {
     });
   }
 
-  const finalRule = new RegExp(
-    '^' + [...config.rules.entries()][0][1].replaceAll(' ', '') + '$',
-  );
+  log(config.rules);
 
-  log(finalRule);
+  // const matching = config.tests
+  //   .map((t) => (finalRule.test(t) ? 1 : 0))
+  //   .reduce(toSum, 0);
 
-  const matching = config.tests
-    .map((t) => (finalRule.test(t) ? 1 : 0))
-    .reduce(toSum, 0);
-
-  log(matching);
+  // log(matching);
 };
 
-//start('./files/example.txt');
-start('./files/input.txt');
+//start('./files/example.part2.changed.txt');
+start('./files/input.changed.txt');
