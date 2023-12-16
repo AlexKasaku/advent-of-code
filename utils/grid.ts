@@ -17,6 +17,9 @@ export const allDirections = [
 ] as const;
 export type Direction = (typeof allDirections)[number];
 
+export const cardinalDirections = ['N', 'E', 'S', 'W'] as const;
+export type CardinalDirection = (typeof cardinalDirections)[number];
+
 export class Grid<T> {
   Values: T[][];
   readonly Width: number;
@@ -70,7 +73,11 @@ export class Grid<T> {
     }
   };
 
-  getAllInDirection = ({ x, y }: Position, direction: Direction) => {
+  getAllInDirection = (
+    { x, y }: Position,
+    direction: Direction,
+    count?: number,
+  ) => {
     // Start at the position and keep moving in direction acquiring cells, until we run out of grid.
     const deltaX =
       direction.indexOf('W') > -1 ? -1 : direction.indexOf('E') > -1 ? 1 : 0;
@@ -87,7 +94,10 @@ export class Grid<T> {
       curX += deltaX;
       curY += deltaY;
       position = this.get({ x: curX, y: curY });
-    } while (position !== undefined);
+    } while (
+      position !== undefined ||
+      (count !== undefined && values.length < count)
+    );
 
     // Remove first element
     values.shift();
