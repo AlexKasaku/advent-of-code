@@ -2,6 +2,7 @@
 import { CardinalDirection, Grid } from '@utils/grid';
 import { EOL } from 'os';
 import { PositionAndDirection, Space } from './types';
+import range from '@utils/range';
 
 export const parseInput = (input: string): Grid<Space> => {
   const values = input.split(EOL).map((line) => line.split(''));
@@ -67,4 +68,48 @@ export const getNewPositions = (
         : undefined;
     })
     .filter((d) => d !== undefined) as PositionAndDirection[];
+};
+
+export const getAllStartingPositionAndDirections = (
+  grid: Grid<Space>,
+): PositionAndDirection[] => {
+  const positions: PositionAndDirection[] = [];
+
+  // Add top + bottom edges
+  positions.push(
+    ...range(0, grid.Width - 1)
+      .map((x) => [
+        {
+          x,
+          y: 0,
+          direction: 'S' as CardinalDirection,
+        },
+        {
+          x,
+          y: grid.Height - 1,
+          direction: 'N' as CardinalDirection,
+        },
+      ])
+      .flat(),
+  );
+
+  // Add side edges
+  positions.push(
+    ...range(0, grid.Height - 1)
+      .map((y) => [
+        {
+          x: 0,
+          y,
+          direction: 'E' as CardinalDirection,
+        },
+        {
+          x: grid.Width - 1,
+          y,
+          direction: 'W' as CardinalDirection,
+        },
+      ])
+      .flat(),
+  );
+
+  return positions;
 };

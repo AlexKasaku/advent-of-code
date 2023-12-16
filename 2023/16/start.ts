@@ -1,6 +1,10 @@
 import fs from 'fs';
 import path from 'path';
-import { getNewPositions, parseInput } from './utils';
+import {
+  getAllStartingPositionAndDirections,
+  getNewPositions,
+  parseInput,
+} from './utils';
 import { PositionAndDirection } from './types';
 import { Position } from '@utils/grid';
 
@@ -16,36 +20,47 @@ const start = async (file: string) => {
   const content = fs.readFileSync(path.join(__dirname, file), 'utf8');
 
   const grid = parseInput(content);
+  let maxEnergized = 0;
 
-  // Track how many spaces have been visited by a laser in a given direction
-  // already to prevent repeats.
-  const visitedSpacesWithDirection = new Set<string>();
-  const visitedSpaces = new Set<string>();
+  const allStartingPositionAndDirections: PositionAndDirection[] =
+    getAllStartingPositionAndDirections(grid);
 
-  const stack: PositionAndDirection[] = [{ x: 0, y: 0, direction: 'E' }];
+  for (const startingPositionAndDirection of allStartingPositionAndDirections) {
+    const stack: PositionAndDirection[] = [startingPositionAndDirection];
 
-  while (stack.length > 0) {
-    const thisPositionAndDirection = stack.shift()!;
+    // Track how many spaces have been visited by a laser in a given direction
+    // already to prevent repeats.
+    const visitedSpacesWithDirection = new Set<string>();
+    const visitedSpaces = new Set<string>();
 
-    //debug(thisPositionAndDirection);
+    while (stack.length > 0) {
+      const thisPositionAndDirection = stack.shift()!;
 
-    // Work out next position
-    const newPositions = getNewPositions(grid, thisPositionAndDirection);
+      //debug(thisPositionAndDirection);
 
-    // Add to stack if not already visited
-    newPositions.forEach((p) => {
-      const setKey = toSetKeyWithDirection(p);
-      if (!visitedSpacesWithDirection.has(setKey)) stack.push(p);
-    });
+      // Work out next position
+      const newPositions = getNewPositions(grid, thisPositionAndDirection);
 
-    // Mark this as visited
-    visitedSpacesWithDirection.add(
-      toSetKeyWithDirection(thisPositionAndDirection),
-    );
-    visitedSpaces.add(toSetKey(thisPositionAndDirection));
+      // Add to stack if not already visited
+      newPositions.forEach((p) => {
+        const setKey = toSetKeyWithDirection(p);
+        if (!visitedSpacesWithDirection.has(setKey)) stack.push(p);
+      });
+
+      // Mark this as visited
+      visitedSpacesWithDirection.add(
+        toSetKeyWithDirection(thisPositionAndDirection),
+      );
+      visitedSpaces.add(toSetKey(thisPositionAndDirection));
+    }
+
+    if (visitedSpaces.size > maxEnergized) {
+      maxEnergized = visitedSpaces.size;
+      log(`Visited spaces: ${visitedSpaces.size} (NEW MAX)`);
+    } else log(`Visited spaces: ${visitedSpaces.size}`);
   }
 
-  log(`Visited spaces: ${visitedSpaces.size}`);
+  log(`Max energized spaces: ${maxEnergized}`);
 };
 
 //start('./files/example.txt');
