@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import { parseInput } from './utils';
+import { parseInput, renderGrid } from './utils';
 import { Space } from './types';
 import {
   CardinalDirection,
@@ -23,6 +23,7 @@ type State = {
 
 type Route = {
   state: State;
+  positions: Position[];
   heatCost: number;
 };
 
@@ -44,16 +45,27 @@ const findSmallestHeatCost = (
   queue.insert(
     {
       state: { position: { x: 0, y: 1 }, straight: 1, direction: 'S' },
+      positions: [
+        { x: 0, y: 0 },
+        { x: 0, y: 1 },
+      ],
       heatCost: 0,
     },
     {
       state: { position: { x: 1, y: 0 }, straight: 1, direction: 'E' },
+      positions: [
+        { x: 0, y: 0 },
+        { x: 1, y: 0 },
+      ],
       heatCost: 0,
     },
   );
 
+  let iterations = 0;
   while (!queue.isEmpty()) {
-    const { state, heatCost } = queue.dequeue()!;
+    const { state, positions, heatCost } = queue.dequeue()!;
+
+    //if (iterations % 100000 === 0) console.log(queue.size());
 
     // Heat up to here
     const currentPosition = state.position;
@@ -65,6 +77,8 @@ const findSmallestHeatCost = (
     ) {
       // Reached end. What's our score?
       log(`Reached goal!`);
+      log('Route:');
+      renderGrid(grid, positions);
       log('Final state:');
       log(state);
       log(`Total heat: ${newHeatCost}`);
@@ -94,6 +108,7 @@ const findSmallestHeatCost = (
               direction: directionToLeft,
               straight: 1,
             },
+            positions: [...positions, nextSpaceToLeft],
             heatCost: newHeatCost,
           });
 
@@ -112,6 +127,7 @@ const findSmallestHeatCost = (
               direction: directionToRight,
               straight: 1,
             },
+            positions: [...positions, nextSpaceToRight],
             heatCost: newHeatCost,
           });
       }
@@ -130,10 +146,12 @@ const findSmallestHeatCost = (
               direction: state.direction,
               straight: state.straight + 1,
             },
+            positions: [...positions, nextSpaceAhead],
             heatCost: newHeatCost,
           });
       }
     }
+    iterations++;
   }
 };
 const start = async (file: string) => {
@@ -142,7 +160,7 @@ const start = async (file: string) => {
   const grid = parseInput(content);
 
   // Part 1
-  //findSmallestHeatCost(grid, 0, 3);
+  findSmallestHeatCost(grid, 0, 3);
 
   // Part 2
   findSmallestHeatCost(grid, 4, 10);

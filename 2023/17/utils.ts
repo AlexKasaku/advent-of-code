@@ -1,6 +1,6 @@
 import { EOL } from 'os';
 import { Space } from './types';
-import { Grid } from '@utils/grid';
+import { Grid, Position } from '@utils/grid';
 
 export const parseInput = (input: string): Grid<Space> => {
   const values = input.split(EOL).map((line) => line.split(''));
@@ -10,4 +10,19 @@ export const parseInput = (input: string): Grid<Space> => {
     y,
     heatCost: parseInt(values[y][x]),
   }));
+};
+
+export const renderGrid = (grid: Grid<Space>, positions: Position[]) => {
+  for (const row of grid.Values)
+    console.log(
+      row.reduce(
+        (a, b) =>
+          a +
+          (positions.findIndex((p) => p.x === b.x && p.y === b.y) > -1
+            ? '⚪'
+            : '⚫'),
+        '' as string,
+      ),
+    );
+  console.log();
 };
