@@ -20,6 +20,11 @@ export type Direction = (typeof allDirections)[number];
 export const cardinalDirections = ['N', 'E', 'S', 'W'] as const;
 export type CardinalDirection = (typeof cardinalDirections)[number];
 
+export const turnLeft = (direction: CardinalDirection): CardinalDirection =>
+  cardinalDirections[(4 + cardinalDirections.indexOf(direction) - 1) % 4];
+export const turnRight = (direction: CardinalDirection): CardinalDirection =>
+  cardinalDirections[(4 + cardinalDirections.indexOf(direction) + 1) % 4];
+
 export class Grid<T> {
   Values: T[][];
   readonly Width: number;
