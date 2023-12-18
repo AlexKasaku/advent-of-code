@@ -4,26 +4,38 @@ import { Space, Step } from './types';
 
 const convertDirection = (direction: string): CardinalDirection => {
   switch (direction) {
+    case '3':
     case 'U':
       return 'N';
+    case '0':
     case 'R':
       return 'E';
+    case '1':
     case 'D':
       return 'S';
+    case '2':
     case 'L':
       return 'W';
   }
   throw 'Unsupported direction';
 };
 
-export const parseInput = (input: string): Step[] => {
+export const parseInput = (input: string, part2: boolean): Step[] => {
   return input.split(EOL).map((line) => {
     const match = line.match(/(\w) (\d+) \(#(.{6})\)/);
     if (!match) throw 'Unrecognized input on ' + line;
+
+    if (!part2)
+      return {
+        direction: convertDirection(match[1]),
+        value: parseInt(match[2]),
+      };
+
+    const code = match[3];
+
     return {
-      direction: convertDirection(match[1]),
-      value: parseInt(match[2]),
-      colour: match[3],
+      direction: convertDirection(code[5]),
+      value: parseInt(code.substring(0, 5), 16),
     };
   });
 };
@@ -83,12 +95,11 @@ export const digGrid = (
   const currentPos: Position = startingPosition;
   const points: Position[] = [{ x: 0, y: 0 }];
 
-  for (const { direction, value, colour } of steps) {
+  for (const { direction, value } of steps) {
     const toDig = grid.getAllInDirection(currentPos, direction, value);
     toDig.forEach((s) => {
       if (s!.dug) throw 'Already dug this part!';
       s!.dug = true;
-      s!.colour = colour;
     });
 
     switch (direction) {
