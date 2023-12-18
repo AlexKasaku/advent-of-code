@@ -100,8 +100,8 @@ export class Grid<T> {
       curY += deltaY;
       position = this.get({ x: curX, y: curY });
     } while (
-      position !== undefined ||
-      (count !== undefined && values.length < count)
+      position !== undefined &&
+      (count === undefined || values.length <= count)
     );
 
     // Remove first element
