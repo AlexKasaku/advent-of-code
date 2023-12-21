@@ -25,6 +25,9 @@ export const turnLeft = (direction: CardinalDirection): CardinalDirection =>
 export const turnRight = (direction: CardinalDirection): CardinalDirection =>
   cardinalDirections[(4 + cardinalDirections.indexOf(direction) + 1) % 4];
 
+export const manhattanDistance = (a: Position, b: Position) =>
+  Math.abs(a.x - b.x) + Math.abs(a.y - b.y);
+
 export class Grid<T> {
   Values: T[][];
   readonly Width: number;
