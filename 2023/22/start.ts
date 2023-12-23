@@ -5,7 +5,7 @@ import { byAscending } from '@utils/sort';
 import range from '@utils/range';
 import { Grid3D } from '@utils/grid3d';
 import { BrickPosition, Space } from './types';
-import { renderGrid } from '2020/17/utils';
+import difference from '@utils/difference';
 
 const debugMode = false;
 const debug = (...params: any[]) => debugMode && console.log(...params);
@@ -112,6 +112,45 @@ const start = async (file: string) => {
 
   // Part1
   countRemovables(bricks, dependencies);
+
+  // Part 2
+  const { bricksAbove, bricksBelow } = dependencies;
+
+  let totalFalls = 0;
+  for (const brick of bricks) {
+    const removedBricks = new Set<BrickPosition>([brick]);
+    const toProcess = [brick];
+
+    // TODO: This could work from processing from the top down and caching each result
+    // so when lower bricks remove them, it can just use that cached result.
+    while (toProcess.length > 0) {
+      const brickToRemove = toProcess.shift()!;
+
+      // Get all bricks above this one with no support and add them to be processed.
+      // When looking for supports, we make sure we ignore bricks we've removed!
+      const aboveBricksWithNoSupport = [
+        ...bricksAbove.get(brickToRemove)!,
+      ].filter((b) => {
+        const bricksBelowThis = bricksBelow.get(b)!;
+        const remainingBricksBelowThis = difference(
+          [...bricksBelowThis],
+          [...removedBricks],
+        );
+
+        return remainingBricksBelowThis.length == 0;
+      });
+
+      // We need to remove all of these bricks at same time before we process them
+      aboveBricksWithNoSupport.forEach((b) => {
+        removedBricks.add(b);
+        toProcess.push(b);
+      });
+    }
+
+    totalFalls += removedBricks.size - 1;
+  }
+
+  log(totalFalls);
 };
 
 const findStoppingDepth = (

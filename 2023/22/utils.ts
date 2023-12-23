@@ -1,7 +1,6 @@
 import { EOL } from 'os';
 import { BrickPosition, Space } from './types';
 import { byDescending } from '@utils/sort';
-import { Grid } from '@utils/grid';
 import { Grid3D } from '@utils/grid3d';
 
 export const parseInput = (input: string): BrickPosition[] => {
@@ -56,21 +55,3 @@ export const getBounds = (
     zMax: bricks.map((b) => Math.max(b.end1.z, b.end2.z)).sort(byDescending)[0],
   };
 };
-
-// export const renderGrid = (grid: Grid3D<Space>): void => {
-//   // Side view
-//   for (const row of grid.Values)
-//     console.log(
-//       row.reduce(
-//         (a, b) =>
-//           a +
-//           (b.isRock
-//             ? '🧱'
-//             : b.visited && (!onEven || b.visitedOnStep! % 2 === 1)
-//               ? '🟡'
-//               : '⚫'),
-//         '' as string,
-//       ),
-//     );
-//   console.log();
-// };
