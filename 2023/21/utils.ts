@@ -20,6 +20,26 @@ export const parseInput = (input: string): [Grid<Space>, Position] => {
   return [grid, startSpace!];
 };
 
+export const parseInputPart2 = (input: string, scale: number): Grid<Space> => {
+  const values = input.split(EOL).map((line) => line.split(''));
+
+  const grid = new Grid<Space>(
+    values.length * scale,
+    values[0].length * scale,
+    ({ x, y }) => {
+      return {
+        x,
+        y,
+        isRock: values[y % values.length][x % values[0].length] === '#',
+        visited: false,
+        visitedOnStep: null,
+      };
+    },
+  );
+
+  return grid;
+};
+
 export const renderGrid = (grid: Grid<Space>, onEven: boolean): void => {
   for (const row of grid.Values)
     console.log(
@@ -28,7 +48,7 @@ export const renderGrid = (grid: Grid<Space>, onEven: boolean): void => {
           a +
           (b.isRock
             ? '🧱'
-            : b.visited && (!onEven || b.visitedOnStep! % 2 === 0)
+            : b.visited && (!onEven || b.visitedOnStep! % 2 === 1)
               ? '🟡'
               : '⚫'),
         '' as string,
