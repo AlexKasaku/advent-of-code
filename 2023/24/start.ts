@@ -2,71 +2,140 @@ import fs from 'fs';
 import path from 'path';
 import { parseInputPart1 } from './utils';
 import { init } from 'z3-solver';
+import intersect from '@utils/intersect';
+import { PointAndVector3D } from '../../utils/point';
+import findIntersection from '@utils/findIntersection';
 
 const debugMode = false;
 const debug = (...params: any[]) => debugMode && console.log(...params);
 const log = (...params: any[]) => console.log(...params);
 
+const findRockVelocity = (
+  hailstones: PointAndVector3D[],
+): { vx: number; vy: number; vz: number } => {
+  let xVelocities = undefined;
+  let yVelocities = undefined;
+  let zVelocities = undefined;
+
+  // Determine rock velocity by finding pairs of hailstones that have the same velocity
+  // along a given axis. The relative velocity of the rock to the hailstone in this axis
+  // must be a divisor of the point difference of those hailstones. This will give us several
+  // possible values, but if we apply this to all the pairs we can hopefully narrow down to
+  // a single value.
+  // This only works because the input set has these duplicates in!
+  for (let h1Index = 0; h1Index < hailstones.length; h1Index++) {
+    const h1 = hailstones[h1Index];
+    for (let h2Index = h1Index + 1; h2Index < hailstones.length; h2Index++) {
+      const h2 = hailstones[h2Index];
+
+      if (h1.vector.x === h2.vector.x) {
+        const velocityCandidates = new Set<number>();
+        for (let vTest = -500; vTest < 500; vTest++) {
+          if (Math.abs(h2.point.x - h1.point.x) % (vTest - h1.vector.x) == 0) {
+            velocityCandidates.add(vTest);
+          }
+        }
+        xVelocities =
+          xVelocities !== undefined
+            ? new Set<number>(
+                intersect([...xVelocities], [...velocityCandidates]),
+              )
+            : new Set<number>(velocityCandidates);
+      }
+
+      if (h1.vector.y === h2.vector.y) {
+        const velocityCandidates = new Set<number>();
+        for (let vTest = -500; vTest < 500; vTest++) {
+          if (Math.abs(h2.point.y - h1.point.y) % (vTest - h1.vector.y) == 0) {
+            velocityCandidates.add(vTest);
+          }
+        }
+        yVelocities =
+          yVelocities !== undefined
+            ? new Set<number>(
+                intersect([...yVelocities], [...velocityCandidates]),
+              )
+            : new Set<number>(velocityCandidates);
+      }
+
+      if (h1.vector.z === h2.vector.z) {
+        const velocityCandidates = new Set<number>();
+        for (let vTest = -500; vTest < 500; vTest++) {
+          if (Math.abs(h2.point.z - h1.point.z) % (vTest - h1.vector.z) == 0) {
+            velocityCandidates.add(vTest);
+          }
+        }
+        zVelocities =
+          zVelocities !== undefined
+            ? new Set<number>(
+                intersect([...zVelocities], [...velocityCandidates]),
+              )
+            : new Set<number>(velocityCandidates);
+      }
+    }
+  }
+
+  if (xVelocities!.size > 1 || yVelocities!.size > 1 || zVelocities!.size > 1)
+    throw 'Could not determine velocities';
+
+  return {
+    vx: [...xVelocities!.values()][0],
+    vy: [...yVelocities!.values()][0],
+    vz: [...zVelocities!.values()][0],
+  };
+};
+
 const start = async (file: string, boundMin: number, boundMax: number) => {
   const content = fs.readFileSync(path.join(__dirname, file), 'utf8');
   const hailstones = parseInputPart1(content);
 
-  // Part 1 needs to be reinstated, or just go back in time in git!
+  const { vx, vy, vz } = findRockVelocity(hailstones);
 
-  // Relies on using z3 to find the answer. Stared at this for hours and played around
-  // trying to work out how this could be found using maths but struggled to come up with
-  // an answer. The solution is out there - feels like a cop out but this felt more like
-  // a mathematical challenge than a programming one.
-  const { Context } = await init();
-  const { Solver, Real } = Context('main');
+  // Now we need to find the origin point. We can do this using two hailstone
+  // paths with the velocities adjusted so they are relatve to the rock (and the rock
+  // is therefore standing still). With this setup, the hailstones new lines must cross at
+  // a single point, which is the rock's starting point.
+  const scale = 100000000000000;
+  const h1 = hailstones[0];
 
-  const solver = new Solver();
+  // Adjust velocity so it is relative to the rock
+  h1.vector.x = (h1.vector.x - vx) * scale;
+  h1.vector.y = (h1.vector.y - vy) * scale;
+  h1.vector.z = (h1.vector.z - vz) * scale;
 
-  // We want to find rpx, rpy, rpy, rvx, rvy, rvz that represents the starting
-  // position + velocity for the rock that will collide with all the hailstones.
-  const rpx = Real.const('rpx');
-  const rpy = Real.const('rpy');
-  const rpz = Real.const('rpz');
-  const rvx = Real.const('rvx');
-  const rvy = Real.const('rvy');
-  const rvz = Real.const('rvz');
+  const h2 = hailstones[1];
 
-  // For each hailstone there must exist a t value where the rock collides with the hailstone
-  // We actually only need to match against 3 hailstones as that line will extrapolate out to
-  // work for all.
-  for (let i = 0; i < 3; i++) {
-    const hailstone = hailstones[i];
+  // Adjust velocity so it is relative to the rock
+  h2.vector.x = (h2.vector.x - vx) * scale;
+  h2.vector.y = (h2.vector.y - vy) * scale;
+  h2.vector.z = (h2.vector.z - vz) * scale;
 
-    // Separate t value for this hailstone
-    const t = Real.const('t' + i);
+  // Find an intersection of these two new "lines"
+  let result = findIntersection(h1, h2);
 
-    solver.add(t.ge(0)); // t must be greater than 0, as only looking forwards in time
+  if (result.type !== 'intersecting') throw 'Could not find interesecting line';
 
-    // Now add position of rock + vector (multiplied by t) so that it hits the hailstone
-    solver.add(
-      rpx.add(rvx.mul(t)).eq(t.mul(hailstone.vector.x).add(hailstone.point.x)),
-    );
-    solver.add(
-      rpy.add(rvy.mul(t)).eq(t.mul(hailstone.vector.y).add(hailstone.point.y)),
-    );
-    solver.add(
-      rpz.add(rvz.mul(t)).eq(t.mul(hailstone.vector.z).add(hailstone.point.z)),
-    );
-  }
+  // We need to round since the numbers are so large there is a margin of error with the floats.
+  const x = Math.round(result.point!.x);
+  const y = Math.round(result.point!.y);
 
-  const result = await solver.check();
+  // Find again, using z inplace of x (as findIntersection only supports x,y currently).
+  h1.vector.x = h1.vector.z;
+  h1.point.x = h1.point.z;
+  h2.vector.x = h2.vector.z;
+  h2.point.x = h2.point.z;
 
-  if (result == 'unsat') throw 'Could not solve solution';
+  result = findIntersection(h1, h2);
 
-  const model = await solver.model();
+  if (result.type !== 'intersecting') throw 'Could not find interesecting line';
 
-  const solvedrpx = Number(model.eval(rpx));
-  const solvedrpy = Number(model.eval(rpy));
-  const solvedrpz = Number(model.eval(rpz));
+  // Read x as z
+  const z = Math.round(result.point!.x);
 
-  log(solvedrpx + solvedrpy + solvedrpz);
-
-  // z3 seems to have an issue where this will hang on to all threads, will need to manually kill the proces.
+  log(x);
+  log(y);
+  log(z);
+  log(x + y + z);
 };
 
 //start('./files/example.txt', 7, 27);
