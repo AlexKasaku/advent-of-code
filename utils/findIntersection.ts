@@ -1,34 +1,16 @@
-export type Point = {
-  x: number;
-  y: number;
-};
-
-export type Vector = {
-  x: number;
-  y: number;
-};
-
-export type PointAndVector = {
-  point: Point;
-  vector: Vector;
-};
+import {
+  Point,
+  PointAndVector,
+  addPoints,
+  crossProduct,
+  subtractPoints,
+} from './point';
 
 export type IntersectionResult =
   | {
       type: 'colinear' | 'parallel' | 'non-intersecting';
     }
   | { type: 'intersecting'; point: Point };
-
-const crossProduct = (v: Point, w: Point): number => v.x * w.y - v.y * w.x;
-const dotProduct = (v: Point, w: Point): number => v.x * w.x + v.y * w.y;
-const subtractPoints = (v: Point, w: Point): Point => ({
-  x: v.x - w.x,
-  y: v.y - w.y,
-});
-const addPoints = (v: Point, w: Point): Point => ({
-  x: v.x + w.x,
-  y: v.y + w.y,
-});
 
 // https://stackoverflow.com/questions/563198/how-do-you-detect-where-two-line-segments-intersect/565282#565282
 const findIntersection = (
